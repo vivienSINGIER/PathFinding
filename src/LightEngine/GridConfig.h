@@ -23,6 +23,7 @@ static class GridConfig
 		{' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
 	};
 
+public:
 	std::vector<std::vector<char>>& GetConfig(int configIndex);
 };
 

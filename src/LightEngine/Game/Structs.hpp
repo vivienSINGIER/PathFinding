@@ -1,0 +1,4 @@
+﻿#ifndef STRUCTS_HPP_INCLUDED
+#define STRUCTS_HPP_INCLUDED
+
+#endif
