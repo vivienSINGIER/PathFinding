@@ -13,7 +13,7 @@
     <PropertyGroup Label="Globals">
         <VCProjectVersion>17.0</VCProjectVersion>
         <Keyword>Win32Proj</Keyword>
-        <ProjectGuid>{4F6961D9-437C-4A07-8B7B-09B868B75421}</ProjectGuid>
+        <ProjectGuid>{4EA74FB2-BF87-4C95-A3B7-38C63816D46D}</ProjectGuid>
         <RootNamespace>LightEngine</RootNamespace>
         <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     </PropertyGroup>
@@ -25,7 +25,7 @@
     </PropertyGroup>
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
     <PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;" Label="Configuration">
-        <ConfigurationType>Bibliothèque statique (.lib)</ConfigurationType>
+        <ConfigurationType>Application</ConfigurationType>
         <UseDebugLibraries>true</UseDebugLibraries>
         <PlatformToolset>v143</PlatformToolset>
         <CharacterSet>Unicode</CharacterSet>
@@ -104,12 +104,16 @@
         <ClCompile Include="..\..\..\src\LightEngine\Utils.cpp"/>
     </ItemGroup>
     <ItemGroup>
+        <ClInclude Include="..\..\..\src\LightEngine\Action.h"/>
+        <ClInclude Include="..\..\..\src\LightEngine\Condition.h"/>
         <ClInclude Include="..\..\..\src\LightEngine\Debug.h"/>
         <ClInclude Include="..\..\..\src\LightEngine\DummyEntity.h"/>
         <ClInclude Include="..\..\..\src\LightEngine\Entity.h"/>
         <ClInclude Include="..\..\..\src\LightEngine\GameManager.h"/>
         <ClInclude Include="..\..\..\src\LightEngine\SampleScene.h"/>
         <ClInclude Include="..\..\..\src\LightEngine\Scene.h"/>
+        <ClInclude Include="..\..\..\src\LightEngine\StateMachine.h"/>
+        <ClInclude Include="..\..\..\src\LightEngine\Transition.h"/>
         <ClInclude Include="..\..\..\src\LightEngine\Utils.h"/>
     </ItemGroup>
     <ItemGroup/>

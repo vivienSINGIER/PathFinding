@@ -2,15 +2,15 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
     <ItemGroup>
         <Filter Include="header">
-            <UniqueIdentifier>{41581357-859E-441B-B06E-59AF52815120}</UniqueIdentifier>
+            <UniqueIdentifier>{EE47FA41-DF82-44E2-B19A-D07C2DD9549A}</UniqueIdentifier>
             <Extensions>h;hpp</Extensions>
         </Filter>
         <Filter Include="resource">
-            <UniqueIdentifier>{07C60E6F-DA66-4515-810F-4CF4D038A74E}</UniqueIdentifier>
+            <UniqueIdentifier>{C40C4737-62C8-49FA-AFDD-21C0B41ED76D}</UniqueIdentifier>
             <Extensions>hlsl;jpg;jpeg;png;wav;mp3;ico;dds;rc;obj</Extensions>
         </Filter>
         <Filter Include="source">
-            <UniqueIdentifier>{D3555479-8627-4356-BCB9-F334833CAB49}</UniqueIdentifier>
+            <UniqueIdentifier>{23E65630-2819-4E38-9352-9C6C6E419139}</UniqueIdentifier>
             <Extensions>cpp;c</Extensions>
         </Filter>
     </ItemGroup>
@@ -39,6 +39,12 @@
         <ClCompile Include="..\..\..\src\LightEngine\Utils.cpp">
             <Filter>source</Filter>
         </ClCompile>
+        <ClInclude Include="..\..\..\src\LightEngine\Action.h">
+            <Filter>header</Filter>
+        </ClInclude>
+        <ClInclude Include="..\..\..\src\LightEngine\Condition.h">
+            <Filter>header</Filter>
+        </ClInclude>
         <ClInclude Include="..\..\..\src\LightEngine\Debug.h">
             <Filter>header</Filter>
         </ClInclude>
@@ -55,6 +61,12 @@
             <Filter>header</Filter>
         </ClInclude>
         <ClInclude Include="..\..\..\src\LightEngine\Scene.h">
+            <Filter>header</Filter>
+        </ClInclude>
+        <ClInclude Include="..\..\..\src\LightEngine\StateMachine.h">
+            <Filter>header</Filter>
+        </ClInclude>
+        <ClInclude Include="..\..\..\src\LightEngine\Transition.h">
             <Filter>header</Filter>
         </ClInclude>
         <ClInclude Include="..\..\..\src\LightEngine\Utils.h">
