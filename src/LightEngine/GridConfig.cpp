@@ -1,0 +1,14 @@
+#include "GridConfig.h"
+
+std::vector<std::vector<char>>& GridConfig::GetConfig(int configIndex)
+{
+	switch (configIndex)
+	{
+	case 1:
+		return config1;
+	case 2:
+		return config2;
+	default:
+		break;
+	}
+}
