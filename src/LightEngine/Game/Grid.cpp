@@ -45,6 +45,9 @@ void Grid::OnEvent(const sf::Event& event)
             isSwapping = true;
         }
 
+        if (event.key.code == sf::Keyboard::B)
+            ToggleWalkable();
+        
         if (isSwapping)
         {
             m_pSelectedTile = nullptr;
@@ -246,6 +249,32 @@ void Grid::AddTile(sf::Vector2i pos)
     }
 
     CalculateNodes();
+}
+
+void Grid::ToggleWalkable()
+{
+    if (m_pSelectedTile == nullptr) return;
+
+    m_pSelectedTile->data->isWalkable = !m_pSelectedTile->data->isWalkable;
+
+    if (m_pSelectedTile->data->isWalkable == true)
+    {
+        for (int i = 0; i < m_pSelectedTile->vNeighbours.size(); i++)
+        {
+            m_pSelectedTile->vNeighbours[i]->vNeighbours.push_back(m_pSelectedTile);
+        }
+        return;
+    }
+
+    for (int i = 0; i < m_pSelectedTile->vNeighbours.size(); i++)
+    {
+        Node<Tile>* n = m_pSelectedTile->vNeighbours[i];
+        for (int j = 0; j < n->vNeighbours.size(); j++)
+        {
+            if (n->vNeighbours[j] == m_pSelectedTile)
+                n->vNeighbours.erase(n->vNeighbours.begin() + j);
+        }
+    }
 }
 
 #endif

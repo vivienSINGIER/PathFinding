@@ -38,6 +38,7 @@ private:
     
     Node<Tile>* TrySelectedTile(int x, int y);
     void AddTile(sf::Vector2i pos);
+    void ToggleWalkable();
 };
 
 #endif
