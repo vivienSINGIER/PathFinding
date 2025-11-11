@@ -35,6 +35,13 @@ void Debug::Draw(sf::RenderWindow* pRenderWindow)
 	}
 
 	mCircles.clear();
+
+	for (sf::RectangleShape& rectangle : mRectangles)
+	{
+		pRenderWindow->draw(rectangle);
+	}
+	
+	mRectangles.clear();
 }
 
 void Debug::DrawLine(float x1, float y1, float x2, float y2, const sf::Color& color)
@@ -56,6 +63,20 @@ void Debug::DrawRectangle(float x, float y, float width, float height, const sf:
 	DrawLine(x + width, y, x + width, y + height, color);
 	DrawLine(x + width, y + height, x, y + height, color);
 	DrawLine(x, y + height, x, y, color);
+}
+
+void Debug::DrawFilledRectangle(float x, float y, float width, float height, const sf::Color& color)
+{
+	sf::RectangleShape rectangle;
+
+	rectangle.setSize({ width, height });
+	rectangle.setPosition(x, y);
+	rectangle.setFillColor(color);
+
+	rectangle.setOutlineThickness(1.f);
+	rectangle.setOutlineColor(sf::Color::Black);
+
+	Debug::Get()->mRectangles.push_back(rectangle);
 }
 
 void Debug::DrawCircle(float x, float y, float radius, const sf::Color& color)
