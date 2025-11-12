@@ -3,6 +3,8 @@
 
 #include "Grid.h"
 
+#include <queue>
+
 #include "Utils.hpp"
 #include "../Debug.h"
 #include "../GridConfig.h"
@@ -103,6 +105,16 @@ void Grid::OnEvent(const sf::Event& event)
         {
             TrySelectedAgent(event.mouseButton.x, event.mouseButton.y);
         }
+        if (event.mouseButton.button == sf::Mouse::Right)
+        {
+            if (m_pSelectedAgent != nullptr)
+            {
+                m_pSelectedAgent->ResetPaths();
+                m_pSelectedAgent->AddPath(GetTilePosition({event.mouseButton.x, event.mouseButton.y}));
+                Reset();
+            }
+        }
+        
     }
 }
 
@@ -172,6 +184,9 @@ void Grid::Draw()
         sf::Vector2f position = m_pSelectedAgent->GetPosition();
         Debug::DrawCircle(position.x, position.y, 10, sf::Color::Red);
     }
+
+    for (Agent* agent : m_vAgents)
+        agent->DrawPaths();
 }
 
 void Grid::CreateAgent(sf::Vector2i mousePos)
@@ -198,6 +213,45 @@ void Grid::CreateAgent(sf::Vector2i mousePos)
     m_vAgents.push_back(tempAgent);
 }
 
+Node<Tile>* Grid::AStar(Node<Tile>* startNode, Node<Tile>* endNode)
+{
+    std::priority_queue<Node<Tile>*, std::vector<Node<Tile>*>, Node<Tile>> queue;
+    queue.push(startNode);
+
+    while (!queue.empty())
+    {
+        Node<Tile>* curr = queue.top();
+        queue.pop();
+
+        if (curr->isVisited == true)
+            continue;
+        
+        if (curr == endNode)
+            return endNode;
+
+        curr->isVisited = true;
+
+        std::vector<Node<Tile>*> neighbours = curr->vNeighbours;
+        for (int i = 0; i < neighbours.size(); i++)
+        {
+            Node<Tile>* neighbour = neighbours[i];
+            if (neighbour->isVisited) 
+                continue;
+
+            neighbour->targetDistance = neighbour->data->Distance(endNode->data);
+            int newCost = curr->cost + 1;
+            if (newCost < neighbour->cost)
+            {
+                neighbour->cost = newCost;
+                neighbour->pCameFrom = curr;
+            }
+            queue.push(neighbour);
+        }
+    }
+
+    return nullptr;
+}
+
 sf::Vector2i Grid::GetTilePosition(sf::Vector2i worldPos)
 {
     sf::Vector2i pos = { worldPos.x - anchorPoint.x, worldPos.y - anchorPoint.y };
@@ -206,6 +260,11 @@ sf::Vector2i Grid::GetTilePosition(sf::Vector2i worldPos)
     pos /= 50;
 
     return pos;
+}
+
+sf::Vector2i Grid::GetWorldPosition(sf::Vector2i gridPos)
+{
+    return { anchorPoint.x + gridPos.x * 50 + 25, anchorPoint.y + gridPos.y * 50 + 25};
 }
 
 void Grid::CalculateNodes()

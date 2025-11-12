@@ -40,4 +40,11 @@ inline void Clamp(int &value, int min, int max)
         value = max;
 }
 
+inline void SelfNormalize(sf::Vector2i &v)
+{
+    float norm = sqrt(v.x * v.x + v.y * v.y);
+    if (norm != 0.f)
+        v /= (int)norm;
+}
+
 #endif
