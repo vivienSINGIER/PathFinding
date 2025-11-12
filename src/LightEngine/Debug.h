@@ -29,7 +29,8 @@ class Debug
 	std::vector<sf::CircleShape> mCircles;
 	std::vector<sf::RectangleShape> mRectangles;
 
-	void Draw(sf::RenderWindow* pRenderWindow);
+	void DrawBack(sf::RenderWindow* pRenderWindow);
+	void DrawFront(sf::RenderWindow* pRenderWindow);
 
 public:
 	static Debug* Get();

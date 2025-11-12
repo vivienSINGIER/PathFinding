@@ -149,13 +149,15 @@ void GameManager::Update()
 void GameManager::Draw()
 {
 	mpWindow->clear(mClearColor);
-	
+
+	Debug::Get()->DrawBack(mpWindow);
+
 	for (Entity* entity : mEntities)
 	{
 		mpWindow->draw(*entity->GetShape());
 	}
 	
-	Debug::Get()->Draw(mpWindow);
+	Debug::Get()->DrawFront(mpWindow);
 
 	mpWindow->display();
 }

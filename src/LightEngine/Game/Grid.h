@@ -8,11 +8,14 @@
 #include "../Scene.h"
 
 class GridConfiguration;
+class Agent;
 
 class Grid : public Scene
 {
 public:
     Node<Tile>* GetNode(Position const& pos);
+    Node<Tile>* GetNode(sf::Vector2i const& pos);
+    sf::Vector2i GetTilePosition(sf::Vector2i worldPos);
 
     void OnInitialize() override;
     void OnUpdate() override;
@@ -20,8 +23,10 @@ public:
     
     void Init(const int configIndex);
     void Reset();
-    void Update();
     void Draw();
+
+    void CreateAgent(sf::Vector2i mousePos);
+
 private:
     sf::Vector2i gridSize;
     sf::Vector2i gridCenter;
@@ -31,12 +36,15 @@ private:
     
     std::vector<std::vector<Tile>> m_vData;
     std::vector<Node<Tile>> m_vNodes;
+    std::vector<Agent*> m_vAgents;
 
     Node<Tile>* m_pSelectedTile = nullptr;
+    Agent* m_pSelectedAgent = nullptr;
 
     void CalculateNodes();
     
     Node<Tile>* TrySelectedTile(int x, int y);
+    void TrySelectedAgent(int x, int y);
     void AddTile(sf::Vector2i pos);
     void ToggleWalkable();
 };

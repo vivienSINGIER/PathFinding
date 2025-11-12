@@ -15,6 +15,7 @@ struct Tile : public NodeData
 {
     Position position;
     bool isWalkable;
+    bool isOccupied;
     
     float Distance(NodeData const* other) override
     {

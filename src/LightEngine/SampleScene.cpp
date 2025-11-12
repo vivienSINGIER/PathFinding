@@ -3,6 +3,7 @@
 #include "DummyEntity.h"
 
 #include "Debug.h"
+#include "GridConfig.h"
 
 void SampleScene::OnInitialize()
 {
@@ -51,5 +52,13 @@ void SampleScene::OnUpdate()
 	{
 		sf::Vector2f position = pEntitySelected->GetPosition();
 		Debug::DrawCircle(position.x, position.y, 10, sf::Color::Blue);
+	}
+
+	for (int row = 0; row < GridConfig().GetConfig(1).size(); row++)
+	{
+		for (int col = 0; col < GridConfig().GetConfig(1)[row].size(); col++)
+		{
+			Debug::DrawFilledRectangle(row * 10.f, col * 10.f, 10.f, 10.f, sf::Color::Green);
+		}
 	}
 }
