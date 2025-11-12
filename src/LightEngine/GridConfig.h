@@ -2,28 +2,13 @@
 
 #include <vector>
 
-static class GridConfig
+class GridConfig
 {
-	std::vector<std::vector<char>> config1 =
-	{
-		{' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
-		{' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
-		{' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
-		{' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
-		{' ',' ',' ',' ','#',' ',' ',' ',' ',' '},
-		{' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
-		{' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
-		{' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
-		{' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
-		{' ',' ',' ',' ',' ',' ',' ',' ',' ',' '}
-	};
+	static std::vector<std::vector<char>> config1;
 
-	std::vector<std::vector<char>> config2 =
-	{
-		{' ',' ',' ',' ',' ',' ',' ',' ',' ',' '},
-	};
+	static std::vector<std::vector<char>> config2;
 
 public:
-	std::vector<std::vector<char>>& GetConfig(int configIndex);
+	static std::vector<std::vector<char>>& GetConfig(int configIndex);
 };
 

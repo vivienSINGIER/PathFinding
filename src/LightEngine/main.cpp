@@ -4,6 +4,7 @@
 
 #include "GameManager.h"
 #include "SampleScene.h"
+#include "Game/Grid.h"
 
 #include <cstdlib>
 #include <crtdbg.h>
@@ -14,7 +15,7 @@ int main()
 
 	pInstance->CreateWindow(1280, 720, "SampleScene", 60, sf::Color::Black);
 	
-	pInstance->LaunchScene<SampleScene>();
+	pInstance->LaunchScene<Grid>();
 
 	return 0;
 }

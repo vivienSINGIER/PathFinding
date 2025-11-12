@@ -36,11 +36,11 @@ void Debug::Draw(sf::RenderWindow* pRenderWindow)
 
 	mCircles.clear();
 
-	for (sf::RectangleShape& rectangles : mRectangles)
+	for (sf::RectangleShape& rectangle : mRectangles)
 	{
-		pRenderWindow->draw(rectangles);
+		pRenderWindow->draw(rectangle);
 	}
-
+	
 	mRectangles.clear();
 }
 
