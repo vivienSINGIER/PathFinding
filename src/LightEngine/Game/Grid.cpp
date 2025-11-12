@@ -6,12 +6,25 @@
 #include "Utils.hpp"
 #include "../Debug.h"
 #include "../GridConfig.h"
+#include "Agent.h"
 
 Node<Tile>* Grid::GetNode(Position const& pos)
 {
     for (int i = 0; i < m_vNodes.size(); i++)
     {
         if (m_vNodes[i].data->position == pos)
+        {
+            return &m_vNodes[i];
+        }
+    }
+    return nullptr;
+}
+
+Node<Tile>* Grid::GetNode(sf::Vector2i const& pos)
+{
+    for (int i = 0; i < m_vNodes.size(); i++)
+    {
+        if (m_vNodes[i].data->position.x == pos.x && m_vNodes[i].data->position.y == pos.y)
         {
             return &m_vNodes[i];
         }
@@ -27,6 +40,15 @@ void Grid::OnInitialize()
 void Grid::OnUpdate()
 {
     Draw();
+    Reset();
+
+    for (int i = 0; i < m_vAgents.size(); i++)
+    {
+        if (m_vAgents[i]->ToDestroy() == true)
+        {
+            m_vAgents.erase(m_vAgents.begin() + i);
+        }
+    }
 }
 
 void Grid::OnEvent(const sf::Event& event)
@@ -47,6 +69,15 @@ void Grid::OnEvent(const sf::Event& event)
 
         if (event.key.code == sf::Keyboard::B)
             ToggleWalkable();
+
+        if (event.key.code == sf::Keyboard::Delete)
+        {
+            if (m_pSelectedAgent == nullptr) 
+                return;
+
+            m_pSelectedAgent->Destroy();
+            m_pSelectedAgent = nullptr;
+        }
         
         if (isSwapping)
         {
@@ -60,12 +91,19 @@ void Grid::OnEvent(const sf::Event& event)
 
     if (event.type == sf::Event::MouseButtonPressed)
     {
-        if (event.mouseButton.button == sf::Mouse::Left && sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+        if (event.mouseButton.button == sf::Mouse::Middle)
         {
             m_pSelectedTile = TrySelectedTile(event.mouseButton.x, event.mouseButton.y);
         }
+        if (event.mouseButton.button == sf::Mouse::Left && event.key.code == sf::Keyboard::A)
+        {
+            CreateAgent({ event.mouseButton.x, event.mouseButton.y });
+        }
+        if (event.mouseButton.button == sf::Mouse::Left)
+        {
+            TrySelectedAgent(event.mouseButton.x, event.mouseButton.y);
+        }
     }
-    
 }
 
 void Grid::Init(const int configIndex)
@@ -108,11 +146,8 @@ void Grid::Reset()
         m_vNodes[i].cost = -1;
         m_vNodes[i].targetDistance = -1;
         m_vNodes[i].pCameFrom = nullptr;
+        m_vNodes[i].data->isOccupied = false;
     }
-}
-
-void Grid::Update()
-{
 }
 
 void Grid::Draw()
@@ -131,6 +166,46 @@ void Grid::Draw()
         if (n->data->isWalkable || n == m_pSelectedTile)
             Debug::DrawFilledRectangle(anchorPoint.x + p.x * 50.f, anchorPoint.y + p.y * 50.f, 50.0f, 50.0f, color);
     }
+
+    if (m_pSelectedAgent != nullptr)
+    {
+        sf::Vector2f position = m_pSelectedAgent->GetPosition();
+        Debug::DrawCircle(position.x, position.y, 10, sf::Color::Red);
+    }
+}
+
+void Grid::CreateAgent(sf::Vector2i mousePos)
+{
+    sf::Vector2i pos = GetTilePosition(mousePos);
+
+    sf::Vector2i min = { m_vData[0][0].position.x, m_vData[0][0].position.y };
+    sf::Vector2i max = { m_vData.back().back().position.x, m_vData.back().back().position.y };
+
+    if (pos.x < min.x || pos.y < min.y) return;
+    if (pos.x > max.x || pos.y > max.y) return;
+
+    Node<Tile>* tempNode = GetNode(pos);
+    if (tempNode == nullptr)
+        return;
+    if (tempNode->data->isWalkable == false || tempNode->data->isOccupied == true)
+        return;
+
+    pos *= 50;
+
+    Agent* tempAgent = CreateEntity<Agent>(20.f, sf::Color::Blue);
+    tempAgent->SetPosition(pos.x + 25.f + anchorPoint.x, pos.y + 25.f + anchorPoint.y);
+
+    m_vAgents.push_back(tempAgent);
+}
+
+sf::Vector2i Grid::GetTilePosition(sf::Vector2i worldPos)
+{
+    sf::Vector2i pos = { worldPos.x - anchorPoint.x, worldPos.y - anchorPoint.y };
+    if (pos.x < 0) pos.x -= 50;
+    if (pos.y < 0) pos.y -= 50;
+    pos /= 50;
+
+    return pos;
 }
 
 void Grid::CalculateNodes()
@@ -172,10 +247,7 @@ void Grid::CalculateNodes()
 
 Node<Tile>* Grid::TrySelectedTile(int x, int y)
 {
-    sf::Vector2i pos = { x - anchorPoint.x, y - anchorPoint.y };
-    if (pos.x < 0) pos.x -= 50;
-    if (pos.y < 0) pos.y -= 50;
-    pos /= 50;
+    sf::Vector2i pos = GetTilePosition({ x, y });
     
     sf::Vector2i min = {m_vData[0][0].position.x - 1, m_vData[0][0].position.y - 1};
     sf::Vector2i max = {m_vData.back().back().position.x + 1, m_vData.back().back().position.y + 1};
@@ -183,17 +255,28 @@ Node<Tile>* Grid::TrySelectedTile(int x, int y)
     if (pos.x < min.x || pos.y < min.y) return nullptr;
     if (pos.x > max.x || pos.y > max.y) return nullptr;
     
-    Node<Tile>* n = GetNode({pos.x, pos.y});
+    Node<Tile>* n = GetNode(pos);
 
     if (n != nullptr) return n;
     
     AddTile({pos.x, pos.y});
     
-    n = GetNode({pos.x, pos.y});
+    n = GetNode(pos);
 
     if (n == nullptr)
         int i = 0;
     return n;
+}
+
+void Grid::TrySelectedAgent(int x, int y)
+{
+    for (Agent* agent : m_vAgents)
+    {
+        if (agent->IsInside(x, y) == false)
+            continue;
+
+        m_pSelectedAgent = agent;
+    }
 }
 
 void Grid::AddTile(sf::Vector2i pos)

@@ -13,7 +13,17 @@ Debug* Debug::Get()
 	return &mInstance;
 }
 
-void Debug::Draw(sf::RenderWindow* pRenderWindow)
+void Debug::DrawBack(sf::RenderWindow* pRenderWindow)
+{
+	for (sf::RectangleShape& rectangle : mRectangles)
+	{
+		pRenderWindow->draw(rectangle);
+	}
+
+	mRectangles.clear();
+}
+
+void Debug::DrawFront(sf::RenderWindow* pRenderWindow)
 {
 	for (Line& line : mLines)
 	{
