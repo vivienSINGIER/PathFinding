@@ -1,3 +1,6 @@
+#ifndef GRID_CONFIG_CPP_INCLUDED
+#define GRID_CONFIG_CPP_INCLUDED
+
 #include "GridConfig.h"
 
 std::vector<std::vector<char>> GridConfig::config1 =
@@ -42,3 +45,5 @@ std::vector<std::vector<char>>& GridConfig::GetConfig(int configIndex)
 		break;
 	}
 }
+
+#endif

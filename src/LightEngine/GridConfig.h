@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GRID_CONFIG_H_INCLUDED
+#define GRID_CONFIG_H_INCLUDED
 
 #include <vector>
 
@@ -11,4 +12,6 @@ class GridConfig
 public:
 	static std::vector<std::vector<char>>& GetConfig(int configIndex);
 };
+
+#endif
 

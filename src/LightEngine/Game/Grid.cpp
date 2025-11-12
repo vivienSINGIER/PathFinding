@@ -176,6 +176,7 @@ Node<Tile>* Grid::TrySelectedTile(int x, int y)
     if (pos.x < 0) pos.x -= 50;
     if (pos.y < 0) pos.y -= 50;
     pos /= 50;
+
     
     sf::Vector2i min = {m_vData[0][0].position.x - 1, m_vData[0][0].position.y - 1};
     sf::Vector2i max = {m_vData.back().back().position.x + 1, m_vData.back().back().position.y + 1};
@@ -198,8 +199,6 @@ Node<Tile>* Grid::TrySelectedTile(int x, int y)
 
 void Grid::AddTile(sf::Vector2i pos)
 {
-    // TODO Create nodes and recalculate neighbours
-    
     if (pos.y < m_vData[0][0].position.y || pos.y > m_vData.back()[0].position.y)
     {
         std::vector<Tile> newVect;
