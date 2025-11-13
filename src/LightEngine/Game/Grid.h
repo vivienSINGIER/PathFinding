@@ -15,8 +15,8 @@ class Grid : public Scene
 public:
     Node<Tile>* GetNode(Position const& pos);
     Node<Tile>* GetNode(sf::Vector2i const& pos);
-    sf::Vector2i GetTilePosition(sf::Vector2i worldPos);
-    sf::Vector2i GetWorldPosition(sf::Vector2i gridPos);
+    static sf::Vector2i GetTilePosition(sf::Vector2i worldPos);
+    static sf::Vector2i GetWorldPosition(sf::Vector2i gridPos);
 
     void OnInitialize() override;
     void OnUpdate() override;
@@ -33,7 +33,7 @@ public:
 private:
     sf::Vector2i gridSize;
     sf::Vector2i gridCenter;
-    sf::Vector2i anchorPoint;
+    static sf::Vector2i anchorPoint;            
 
     int gridConfigIndex = 1;
     

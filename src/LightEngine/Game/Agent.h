@@ -18,7 +18,7 @@ struct Path
 class Agent : public Entity
 {
 	sf::Vector2i m_tilePosition;
-	std::queue<Path> vPaths;
+	std::vector<Path> vPaths;
 		
 public:
 	Agent() = default;
@@ -26,13 +26,19 @@ public:
 
 	void OnUpdate();
 	void OnCollision(Entity* collidedWith) {}
+
+	sf::Vector2i GetTilePosition() { return m_tilePosition; }
 	
 	void ResetPaths();
 	void AddPath(sf::Vector2i vector2);
+	Path GetPath(sf::Vector2i start, sf::Vector2i end);
 	void DrawPaths();
+	void DrawSinglePath(Path& path, sf::Color color = sf::Color::Blue);
+	void PreviewPath(sf::Vector2i vector);
 	
 	void OnInitialize();
-	void OnDestroy() {};
+	void OnDestroy() {}
+	void ToggleLoop();
 };
 
 #endif 

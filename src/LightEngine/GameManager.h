@@ -44,7 +44,6 @@ private:
 
 	void SetDeltaTime(float deltaTime) { mDeltaTime = deltaTime; }
 
-	sf::RenderWindow* GetWindow() const { return mpWindow; }
 
 public:
 	~GameManager();
@@ -58,6 +57,7 @@ public:
 	float GetDeltaTime() const { return mDeltaTime; }
 	Scene* GetScene() const { return mpScene; }
 	sf::Font& GetFont() { return mFont; };
+	sf::RenderWindow* GetWindow() const { return mpWindow; }
 
 	friend Debug;
 	friend Scene;

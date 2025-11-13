@@ -9,6 +9,9 @@
 #include "../Debug.h"
 #include "../GridConfig.h"
 #include "Agent.h"
+#include "SFML/Graphics.hpp"
+
+sf::Vector2i Grid::anchorPoint = { 0, 0};
 
 Node<Tile>* Grid::GetNode(Position const& pos)
 {
@@ -44,6 +47,24 @@ void Grid::OnUpdate()
     Draw();
     Reset();
 
+    for (int i = 0; i < m_vNodes.size(); i++)
+        m_vNodes[i].data->isOccupied = false;
+
+    for (int i = 0; i < m_vAgents.size(); i++)
+    {
+        Node<Tile>* n = GetNode(m_vAgents[i]->GetTilePosition());
+        n->data->isOccupied = true;
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Tab))
+    {
+        if (m_pSelectedAgent != nullptr)
+        {
+            sf::Window* w = GameManager::Get()->GetWindow();
+            m_pSelectedAgent->PreviewPath(GetTilePosition(sf::Mouse::getPosition(*w)));
+        }
+    }
+    
     for (int i = 0; i < m_vAgents.size(); i++)
     {
         if (m_vAgents[i]->ToDestroy() == true)
@@ -51,6 +72,7 @@ void Grid::OnUpdate()
             m_vAgents.erase(m_vAgents.begin() + i);
         }
     }
+    
 }
 
 void Grid::OnEvent(const sf::Event& event)
@@ -74,11 +96,19 @@ void Grid::OnEvent(const sf::Event& event)
 
         if (event.key.code == sf::Keyboard::Delete)
         {
-            if (m_pSelectedAgent == nullptr) 
-                return;
+            if (m_pSelectedAgent != nullptr)
+            {
+                m_pSelectedAgent->Destroy();
+                m_pSelectedAgent = nullptr;   
+            }
+        }
 
-            m_pSelectedAgent->Destroy();
-            m_pSelectedAgent = nullptr;
+        if (event.key.code == sf::Keyboard::P)
+        {
+            if (m_pSelectedAgent != nullptr)
+            {
+                m_pSelectedAgent->ToggleLoop();
+            }
         }
         
         if (isSwapping)
@@ -97,7 +127,7 @@ void Grid::OnEvent(const sf::Event& event)
         {
             m_pSelectedTile = TrySelectedTile(event.mouseButton.x, event.mouseButton.y);
         }
-        if (event.mouseButton.button == sf::Mouse::Left && event.key.code == sf::Keyboard::A)
+        if (event.mouseButton.button == sf::Mouse::Left && sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         {
             CreateAgent({ event.mouseButton.x, event.mouseButton.y });
         }
@@ -109,7 +139,8 @@ void Grid::OnEvent(const sf::Event& event)
         {
             if (m_pSelectedAgent != nullptr)
             {
-                m_pSelectedAgent->ResetPaths();
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) == false)
+                    m_pSelectedAgent->ResetPaths();
                 m_pSelectedAgent->AddPath(GetTilePosition({event.mouseButton.x, event.mouseButton.y}));
                 Reset();
             }
@@ -148,17 +179,17 @@ void Grid::Init(const int configIndex)
 
     float offsetX = GetWindowWidth() / 2 - gridSize.x / 2;
     float offsetY = GetWindowHeight() / 2 - gridSize.y / 2;
-    anchorPoint = sf::Vector2i(offsetX, offsetY);
+    Grid::anchorPoint = sf::Vector2i(offsetX, offsetY);
 }
 
 void Grid::Reset()
 {
     for (int i = 0; i < m_vNodes.size(); i++)
     {
-        m_vNodes[i].cost = -1;
-        m_vNodes[i].targetDistance = -1;
+        m_vNodes[i].cost = MAX_COST;
+        m_vNodes[i].targetDistance = MAX_COST;
         m_vNodes[i].pCameFrom = nullptr;
-        m_vNodes[i].data->isOccupied = false;
+        m_vNodes[i].isVisited = false;
     }
 }
 
@@ -170,6 +201,9 @@ void Grid::Draw()
         Position p = n->data->position;
 
         sf::Color color = sf::Color::Green;
+        if (n->data->isOccupied == true)
+            color = sf::Color::White;
+        
         if (n == m_pSelectedTile)
             color = sf::Color::Blue;
         if (n == m_pSelectedTile && n->data->isWalkable == false)
@@ -216,6 +250,7 @@ void Grid::CreateAgent(sf::Vector2i mousePos)
 Node<Tile>* Grid::AStar(Node<Tile>* startNode, Node<Tile>* endNode)
 {
     std::priority_queue<Node<Tile>*, std::vector<Node<Tile>*>, Node<Tile>> queue;
+    startNode->cost = 0;
     queue.push(startNode);
 
     while (!queue.empty())

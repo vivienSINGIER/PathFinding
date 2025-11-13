@@ -4,6 +4,8 @@
 #include <map>
 #include <vector>
 
+#define MAX_COST (2147483647 / 2)
+
 template<typename T>
 struct Node
 {
@@ -12,8 +14,8 @@ struct Node
     bool isVisited = false;
     Node* pCameFrom = nullptr;
     
-    int cost = -1;
-    int targetDistance = -1;
+    int cost = MAX_COST;
+    int targetDistance = MAX_COST;
 
     std::vector<Node*> vNeighbours;
 
@@ -21,6 +23,9 @@ struct Node
     {
         int totalCostA = a->cost + a->targetDistance;
         int totalCostB = b->cost + b->targetDistance;
+
+        if ( totalCostA == totalCostB)
+            return a->cost < b->cost;
 
         return totalCostA > totalCostB;
     }
