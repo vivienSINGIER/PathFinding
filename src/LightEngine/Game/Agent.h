@@ -19,6 +19,7 @@ class Agent : public Entity
 {
 	sf::Vector2i m_tilePosition;
 	std::vector<Path> vPaths;
+	float m_StuckTimer;
 		
 public:
 	Agent() = default;
@@ -31,6 +32,7 @@ public:
 	
 	void ResetPaths();
 	void AddPath(sf::Vector2i vector2);
+	void AddTempPath(sf::Vector2i vector2);
 	Path GetPath(sf::Vector2i start, sf::Vector2i end);
 	void DrawPaths();
 	void DrawSinglePath(Path& path, sf::Color color = sf::Color::Blue);

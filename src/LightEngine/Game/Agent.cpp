@@ -53,12 +53,19 @@ void Agent::OnUpdate()
 		if (mSpeed == 0.0f)
 		{
 			if (nextNode->data->isOccupied == false)
+			{
 				mSpeed = SPEED;
+				m_StuckTimer = 0.f;
+			}
+			else
+				m_StuckTimer += GetDeltaTime();
 		}
 		else
 		{
 			if (nextNode->data->isOccupied == true)
+			{
 				mSpeed = 0.0f;
+			}
 		}
 
 		// Check if path is no longer available
@@ -100,6 +107,11 @@ void Agent::AddPath(sf::Vector2i vector2)
 	Path p = GetPath(start, vector2);
 	if (p.vPositions.empty() == false)
 		vPaths.push_back(p);
+}
+
+void Agent::AddTempPath(sf::Vector2i vector2)
+{
+
 }
 
 Path Agent::GetPath(sf::Vector2i start, sf::Vector2i end)
