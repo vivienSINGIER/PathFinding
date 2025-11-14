@@ -45,6 +45,7 @@ void Agent::OnUpdate()
 		// Check if path is occupied
 		sf::Vector2i nextTilePos = worldPos + sf::Vector2i(mDirection.x * 25, mDirection.y * 25);
 		sf::Vector2i tileP = grid->GetTilePosition(nextTilePos);
+		sf::Vector2i intDirection = tileP - m_tilePosition;
 		Node<Tile>* nextNode = grid->GetNode(tileP);
 		if (nextNode == nullptr) return;
 		if (tempNode == nextNode) return;
@@ -67,7 +68,7 @@ void Agent::OnUpdate()
 		while (currPos != Grid::GetTilePosition(mTarget.position))
 		{
 			section.push_back(temp);
-			currPos = currPos + sf::Vector2i(mDirection.x, mDirection.y);
+			currPos = currPos + intDirection;
 			temp = grid->GetNode(currPos);
 		}
 

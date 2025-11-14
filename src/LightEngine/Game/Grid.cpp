@@ -217,6 +217,16 @@ void Grid::Draw()
     {
         sf::Vector2f position = m_pSelectedAgent->GetPosition();
         Debug::DrawCircle(position.x, position.y, 10, sf::Color::Red);
+
+        /*Node<Tile>* pNode = GetNode(GetTilePosition(sf::Vector2i(position.x, position.y)));
+        if (pNode != nullptr)
+        {
+            for (int i = 0; i < pNode->vNeighbours.size(); i++)
+            {
+                Position p = pNode->vNeighbours[i]->data->position;
+                Debug::DrawFilledRectangle(anchorPoint.x + p.x * 50.0f, anchorPoint.y + p.y * 50.0f, 50.0f, 50.0f, sf::Color::Yellow);
+            }
+        }*/
     }
 
     for (Agent* agent : m_vAgents)
@@ -331,8 +341,18 @@ void Grid::CalculateNodes()
         {
             Position p = neighbours[i];
             Tile* neig = &m_vData[p.y][p.x];
-            if (neig->isWalkable == false)
+
+            if (neig->isWalkable == false) 
                 continue;
+            if (n->data->Distance(neig) == 2)
+            {
+                Position centerPos = n->data->position;
+                Tile* n1 = &m_vData[p.y][centerPos.x];
+                Tile* n2 = &m_vData[centerPos.y][p.x];
+
+                if (n1->isWalkable == false || n2->isWalkable == false)
+                    continue;
+            }
         
             n->vNeighbours.push_back(GetNode(neig->position));
         }
