@@ -7,6 +7,7 @@
 #include "NodeData.hpp"
 #include "../Scene.h"
 
+struct Tile;
 class GridConfiguration;
 class Agent;
 

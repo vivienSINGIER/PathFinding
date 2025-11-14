@@ -111,6 +111,16 @@ void Grid::OnEvent(const sf::Event& event)
             }
         }
         
+        if (event.key.code == sf::Keyboard::Add)
+        {
+            m_pSelectedAgent->SetSpeedFactor(std::min(5.f, m_pSelectedAgent->GetSpeedFactor() + 1));
+        }
+
+        if (event.key.code == sf::Keyboard::Subtract)
+        {
+            m_pSelectedAgent->SetSpeedFactor(std::max(0.f, m_pSelectedAgent->GetSpeedFactor() - 1));
+        }
+
         if (isSwapping)
         {
             m_pSelectedTile = nullptr;
@@ -452,22 +462,30 @@ void Grid::ToggleWalkable()
 
     m_pSelectedTile->data->isWalkable = !m_pSelectedTile->data->isWalkable;
 
-    if (m_pSelectedTile->data->isWalkable == true)
-    {
-        for (int i = 0; i < m_pSelectedTile->vNeighbours.size(); i++)
-        {
-            m_pSelectedTile->vNeighbours[i]->vNeighbours.push_back(m_pSelectedTile);
-        }
-        return;
-    }
-
     for (int i = 0; i < m_pSelectedTile->vNeighbours.size(); i++)
     {
         Node<Tile>* n = m_pSelectedTile->vNeighbours[i];
-        for (int j = 0; j < n->vNeighbours.size(); j++)
+        n->vNeighbours.clear();
+        std::vector<Position> neighbours = Position::GetNeighbours(n->data->position, {(int)m_vData[0].size() - 1, (int)m_vData.size() - 1});
+        
+        for (int i = 0; i < neighbours.size(); i++)
         {
-            if (n->vNeighbours[j] == m_pSelectedTile)
-                n->vNeighbours.erase(n->vNeighbours.begin() + j);
+            Position p = neighbours[i];
+            Tile* neig = &m_vData[p.y][p.x];
+
+            if (neig->isWalkable == false) 
+                continue;
+            if (n->data->Distance(neig) == 2)
+            {
+                Position centerPos = n->data->position;
+                Tile* n1 = &m_vData[p.y][centerPos.x];
+                Tile* n2 = &m_vData[centerPos.y][p.x];
+
+                if (n1->isWalkable == false || n2->isWalkable == false)
+                    continue;
+            }
+        
+            n->vNeighbours.push_back(GetNode(neig->position));
         }
     }
 }

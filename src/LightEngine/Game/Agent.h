@@ -5,6 +5,7 @@
 #include <queue>
 
 #include "Node.hpp"
+#include "NodeData.hpp"
 #include "../Entity.h"
 
 struct Path
@@ -24,6 +25,12 @@ class Agent : public Entity
 public:
 	Agent() = default;
 	~Agent() = default;
+
+	Node<Tile>* GetNextNode(sf::Vector2i worldPos);
+	
+	void CheckPathOccupied(sf::Vector2i worldPos);
+	void SetTarget();
+	void CheckPathAvailable(sf::Vector2i worldPos);
 
 	void OnUpdate();
 	void OnCollision(Entity* collidedWith) {}

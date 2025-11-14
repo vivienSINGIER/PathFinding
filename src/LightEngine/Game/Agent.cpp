@@ -8,6 +8,7 @@
 
 #define SPEED 80.0f
 
+
 void Agent::OnUpdate()
 {
 	Grid* grid = GetScene<Grid>();
@@ -16,78 +17,120 @@ void Agent::OnUpdate()
 	sf::Vector2f tempPos = { mShape.getPosition().x + mShape.getRadius(), mShape.getPosition().y + mShape.getRadius() };
 	sf::Vector2i worldPos = { (int)(tempPos.x), (int)(tempPos.y) };
 	m_tilePosition = grid->GetTilePosition(worldPos);
-
-	Node<Tile>* tempNode = grid->GetNode(m_tilePosition);
-
+	
 	if (vPaths.empty()) return;
 
-	Path& currentPath = vPaths.front();
-	
 	if (mTarget.isSet == false)
+		SetTarget();
+
+	CheckPathOccupied(worldPos);
+	CheckPathAvailable(worldPos);
+}
+
+void Agent::SetTarget()
+{
+	CheckPathAvailable(Grid::GetWorldPosition(m_tilePosition));
+	Path& currentPath = vPaths.front();
+
+	if (currentPath.vPositions.empty() == true) return;
+
+	
+	if (currentPath.index < currentPath.vPositions.size())
 	{
-		if (currentPath.index < currentPath.vPositions.size())
+		sf::Vector2i p = {currentPath.vPositions[currentPath.index].x, currentPath.vPositions[currentPath.index].y};
+		sf::Vector2i wP = Grid::GetWorldPosition(p);
+		GoToPosition(wP.x, wP.y, SPEED);
+		currentPath.index++;
+	}
+	else if (currentPath.isLoop == false)
+		vPaths.erase(vPaths.begin());
+	else if (currentPath.isLoop == true)
+	{
+		std::reverse(currentPath.vPositions.begin(), currentPath.vPositions.end());
+		currentPath.index = 0;
+	}
+}
+
+void Agent::CheckPathAvailable(sf::Vector2i worldPos)
+{
+	Grid* grid = GetScene<Grid>();
+	if (grid == nullptr) return;
+
+	Node<Tile>* node = grid->GetNode(m_tilePosition);
+	if (node == nullptr) return;
+	
+	sf::Vector2i currPos = m_tilePosition;
+	std::vector<Node<Tile>*> section;
+	Node<Tile>* temp = node;
+
+	Node<Tile>* next = GetNextNode(worldPos);
+	if (next == nullptr) return;
+
+	sf::Vector2i nextPos = {next->data->position.x, next->data->position.y};
+	
+	sf::Vector2i intDirection = nextPos - m_tilePosition;
+	
+	while (currPos != Grid::GetTilePosition(mTarget.position))
+	{
+		section.push_back(temp);
+		currPos = currPos + intDirection;
+		temp = grid->GetNode(currPos);
+	}
+
+	for (int i = 0; i < section.size(); i++)
+	{
+		if (section[i]->data->isWalkable == false)
 		{
-			sf::Vector2i p = {currentPath.vPositions[currentPath.index].x, currentPath.vPositions[currentPath.index].y};
-			sf::Vector2i wP = grid->GetWorldPosition(p);
-			GoToPosition(wP.x, wP.y, SPEED);
-			currentPath.index++;
-		}
-		else if (currentPath.isLoop == false)
+			int index = 0;
+			
+			if (i != 1)
+				index = 1;
+
+			sf::Vector2i vPos = {section[index]->data->position.x, section[index]->data->position.y};
+			Path p = GetPath(vPos, vPaths.front().vPositions.back());
 			vPaths.erase(vPaths.begin());
-		else if (currentPath.isLoop == true)
-		{
-			std::reverse(currentPath.vPositions.begin(), currentPath.vPositions.end());
-			currentPath.index = 0;
+			vPaths.insert(vPaths.begin(), p);
+			mTarget.isSet = false;
+			break;
 		}
+	}
+}
+
+Node<Tile>* Agent::GetNextNode(sf::Vector2i worldPos)
+{
+	Grid* grid = GetScene<Grid>();
+	if (grid == nullptr) return nullptr;
+	Node<Tile>* node = grid->GetNode(m_tilePosition);
+	
+	sf::Vector2i nextTilePos = worldPos + sf::Vector2i(mDirection.x * 25, mDirection.y * 25);
+	sf::Vector2i tileP = Grid::GetTilePosition(nextTilePos);
+	
+	Node<Tile>* nextNode = grid->GetNode(tileP);
+	if (node == nextNode) return nullptr;
+
+	return nextNode;
+}
+
+void Agent::CheckPathOccupied(sf::Vector2i worldPos)
+{
+	Node<Tile>* nextNode = GetNextNode(worldPos);
+	if (nextNode == nullptr) return;
+	
+	if (mSpeed == 0.0f)
+	{
+		if (nextNode->data->isOccupied == false)
+		{
+			mSpeed = SPEED;
+			m_StuckTimer = 0.f;
+		}
+		else
+			m_StuckTimer += GetDeltaTime();
 	}
 	else
 	{
-		// Check if path is occupied
-		sf::Vector2i nextTilePos = worldPos + sf::Vector2i(mDirection.x * 25, mDirection.y * 25);
-		sf::Vector2i tileP = grid->GetTilePosition(nextTilePos);
-		sf::Vector2i intDirection = tileP - m_tilePosition;
-		Node<Tile>* nextNode = grid->GetNode(tileP);
-		if (nextNode == nullptr) return;
-		if (tempNode == nextNode) return;
-		
-		if (mSpeed == 0.0f)
+		if (nextNode->data->isOccupied == true)
 		{
-			if (nextNode->data->isOccupied == false)
-			{
-				mSpeed = SPEED;
-				m_StuckTimer = 0.f;
-			}
-			else
-				m_StuckTimer += GetDeltaTime();
-		}
-		else
-		{
-			if (nextNode->data->isOccupied == true)
-			{
-				mSpeed = 0.0f;
-			}
-		}
-
-		// Check if path is no longer available
-		sf::Vector2i currPos = m_tilePosition;
-		std::vector<Node<Tile>*> section;
-		Node<Tile>* temp = tempNode;
-		while (currPos != Grid::GetTilePosition(mTarget.position))
-		{
-			section.push_back(temp);
-			currPos = currPos + intDirection;
-			temp = grid->GetNode(currPos);
-		}
-
-		for (int i = 0; i < section.size(); i++)
-		{
-			if (section[i]->data->isWalkable == false)
-			{
-				Path p = GetPath(m_tilePosition, vPaths.front().vPositions.back());
-				vPaths.erase(vPaths.begin());
-				vPaths.insert(vPaths.begin(), p);
-				mTarget.isSet = false;
-			}
+			mSpeed = 0.0f;
 		}
 	}
 }

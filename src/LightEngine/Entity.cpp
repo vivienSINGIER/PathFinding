@@ -146,7 +146,7 @@ void Entity::SetDirection(float x, float y, float speed)
 void Entity::Update()
 {
 	float dt = GetDeltaTime();
-	float distance = dt * mSpeed;
+	float distance = dt * mSpeed * mSpeedFactor;
 	sf::Vector2f translation = distance * mDirection;
 	mShape.move(translation);
 
