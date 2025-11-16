@@ -6,6 +6,8 @@
 #include "Grid.h"
 #include "Position.hpp"
 
+class Agent;
+
 struct NodeData
 {
     virtual float Distance(NodeData const* other) { return 0.f; }
@@ -15,7 +17,7 @@ struct Tile : public NodeData
 {
     Position position;
     bool isWalkable;
-    bool isOccupied;
+    Agent* pOccupyingAgent;
     
     float Distance(NodeData const* other) override
     {

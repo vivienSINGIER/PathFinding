@@ -232,10 +232,13 @@ void Agent::CheckPathOccupied(sf::Vector2i worldPos)
 {
 	Node<Tile>* nextNode = GetNextNode();
 	if (nextNode == nullptr) return;
+
+	if (m_vPaths.empty() == true) return;
+	Path& currentPath = m_vPaths.front();
 	
 	if (mSpeed == 0.0f)
 	{
-		if (nextNode->data->isOccupied == false)
+		if (nextNode->data->pOccupyingAgent == nullptr)
 		{
 			mSpeed = SPEED;
 			m_StuckTimer = 0.f;
@@ -245,10 +248,32 @@ void Agent::CheckPathOccupied(sf::Vector2i worldPos)
 	}
 	else
 	{
-		if (nextNode->data->isOccupied == true)
+		if (nextNode->data->pOccupyingAgent != nullptr && nextNode->data->pOccupyingAgent != this)
 		{
 			mSpeed = 0.0f;
 		}
+	}
+
+	if (m_StuckTimer > 10.0f)
+	{
+		if (currentPath.isLoop == false)
+		{
+			sf::Vector2i vPos = m_tilePosition;
+			Path p = GetPath(vPos, m_vPaths.front().vPositions.back());
+			m_vPaths.erase(m_vPaths.begin());
+			m_vPaths.insert(m_vPaths.begin(), p);
+		}
+		else
+		{
+			if (currentPath.detourStart == -1)
+				SetDetour(currentPath.index - 1, currentPath.index + 1);
+			else
+				SetDetour(currentPath.detourStart, currentPath.detourStart + 1);
+		}
+
+		SetTarget();
+		mSpeed = SPEED;
+		m_StuckTimer = 0.f;
 	}
 }
 
@@ -329,7 +354,7 @@ Path Agent::GetPath(sf::Vector2i start, sf::Vector2i end)
 	if (nSelf == nullptr) return Path();
 	if (nEnd == nullptr) return Path();
 	
-	Node<Tile>* nResult = grid->AStar(nSelf, nEnd);
+	Node<Tile>* nResult = grid->AStar(nSelf, nEnd, this);
 	if (nResult == nullptr)
 		return Path();
 	

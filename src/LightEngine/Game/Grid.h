@@ -29,7 +29,7 @@ public:
 
     void CreateAgent(sf::Vector2i mousePos);
 
-    Node<Tile>* AStar(Node<Tile>* startNode, Node<Tile>* endNode);
+    Node<Tile>* AStar(Node<Tile>* startNode, Node<Tile>* endNode, Agent* pAgent);
 
 private:
     sf::Vector2i gridSize;

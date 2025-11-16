@@ -48,13 +48,18 @@ void Grid::OnUpdate()
     Reset();
 
     for (int i = 0; i < m_vNodes.size(); i++)
-        m_vNodes[i].data->isOccupied = false;
+    {
+        m_vNodes[i].data->pOccupyingAgent = nullptr;
+    }
 
     for (int i = 0; i < m_vAgents.size(); i++)
     {
         Node<Tile>* n = GetNode(m_vAgents[i]->GetTilePosition());
+        Node<Tile>* n2 = GetNode(m_vAgents[i]->GetNextTilePosition());
         if (n != nullptr)
-            n->data->isOccupied = true;
+            n->data->pOccupyingAgent = m_vAgents[i];
+        if (n2 != nullptr)
+            n2->data->pOccupyingAgent = m_vAgents[i];
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Tab))
@@ -216,7 +221,7 @@ void Grid::Draw()
         Position p = n->data->position;
 
         sf::Color color = sf::Color::Green;
-        if (n->data->isOccupied == true)
+        if (n->data->pOccupyingAgent != nullptr)
             color = sf::Color::White;
         
         if (n == m_pSelectedTile)
@@ -232,16 +237,6 @@ void Grid::Draw()
     {
         sf::Vector2f position = m_pSelectedAgent->GetPosition();
         Debug::DrawCircle(position.x, position.y, 10, sf::Color::Red);
-
-        /*Node<Tile>* pNode = GetNode(GetTilePosition(sf::Vector2i(position.x, position.y)));
-        if (pNode != nullptr)
-        {
-            for (int i = 0; i < pNode->vNeighbours.size(); i++)
-            {
-                Position p = pNode->vNeighbours[i]->data->position;
-                Debug::DrawFilledRectangle(anchorPoint.x + p.x * 50.0f, anchorPoint.y + p.y * 50.0f, 50.0f, 50.0f, sf::Color::Yellow);
-            }
-        }*/
     }
 
     for (Agent* agent : m_vAgents)
@@ -261,7 +256,7 @@ void Grid::CreateAgent(sf::Vector2i mousePos)
     Node<Tile>* tempNode = GetNode(pos);
     if (tempNode == nullptr)
         return;
-    if (tempNode->data->isWalkable == false || tempNode->data->isOccupied == true)
+    if (tempNode->data->isWalkable == false || tempNode->data->pOccupyingAgent != nullptr)
         return;
 
     pos *= 50;
@@ -272,7 +267,7 @@ void Grid::CreateAgent(sf::Vector2i mousePos)
     m_vAgents.push_back(tempAgent);
 }
 
-Node<Tile>* Grid::AStar(Node<Tile>* startNode, Node<Tile>* endNode)
+Node<Tile>* Grid::AStar(Node<Tile>* startNode, Node<Tile>* endNode, Agent* pAgent)
 {
     std::priority_queue<Node<Tile>*, std::vector<Node<Tile>*>, Node<Tile>> queue;
     startNode->cost = 0;
@@ -296,6 +291,8 @@ Node<Tile>* Grid::AStar(Node<Tile>* startNode, Node<Tile>* endNode)
         {
             Node<Tile>* neighbour = neighbours[i];
             if (neighbour->isVisited) 
+                continue;
+            if (neighbour->data->pOccupyingAgent != nullptr && neighbour->data->pOccupyingAgent != pAgent)
                 continue;
 
             neighbour->targetDistance = neighbour->data->Distance(endNode->data);
@@ -464,7 +461,7 @@ void Grid::AddTile(sf::Vector2i pos)
 void Grid::ToggleWalkable()
 {
     if (m_pSelectedTile == nullptr) return;
-    if (m_pSelectedTile->data->isOccupied) return;
+    if (m_pSelectedTile->data->pOccupyingAgent != nullptr) return;
 
     m_pSelectedTile->data->isWalkable = !m_pSelectedTile->data->isWalkable;
 
