@@ -18,6 +18,7 @@ class Entity
 		sf::Vector2i position;
         float distance;
 		bool isSet;
+    	bool isReached;
     };
 
 protected:

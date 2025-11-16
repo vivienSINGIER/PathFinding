@@ -53,7 +53,8 @@ void Grid::OnUpdate()
     for (int i = 0; i < m_vAgents.size(); i++)
     {
         Node<Tile>* n = GetNode(m_vAgents[i]->GetTilePosition());
-        n->data->isOccupied = true;
+        if (n != nullptr)
+            n->data->isOccupied = true;
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Tab))
@@ -149,10 +150,14 @@ void Grid::OnEvent(const sf::Event& event)
         {
             if (m_pSelectedAgent != nullptr)
             {
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) == false)
-                    m_pSelectedAgent->ResetPaths();
-                m_pSelectedAgent->AddPath(GetTilePosition({event.mouseButton.x, event.mouseButton.y}));
-                Reset();
+                Node<Tile>* target = GetNode(GetTilePosition({event.mouseButton.x, event.mouseButton.y}));
+                if (target != nullptr && target->data->isWalkable == true)
+                {
+                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) == false)
+                        m_pSelectedAgent->ResetPaths();
+                    m_pSelectedAgent->AddPath(GetTilePosition({event.mouseButton.x, event.mouseButton.y}));
+                    Reset();   
+                }
             }
         }
         
@@ -294,7 +299,7 @@ Node<Tile>* Grid::AStar(Node<Tile>* startNode, Node<Tile>* endNode)
                 continue;
 
             neighbour->targetDistance = neighbour->data->Distance(endNode->data);
-            int newCost = curr->cost + 1;
+            int newCost = curr->cost + curr->data->Distance(neighbour->data);
             if (newCost < neighbour->cost)
             {
                 neighbour->cost = newCost;
@@ -459,6 +464,7 @@ void Grid::AddTile(sf::Vector2i pos)
 void Grid::ToggleWalkable()
 {
     if (m_pSelectedTile == nullptr) return;
+    if (m_pSelectedTile->data->isOccupied) return;
 
     m_pSelectedTile->data->isWalkable = !m_pSelectedTile->data->isWalkable;
 

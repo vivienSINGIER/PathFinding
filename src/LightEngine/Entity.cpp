@@ -123,13 +123,17 @@ bool Entity::GoToDirection(int x, int y, float speed)
 bool Entity::GoToPosition(int x, int y, float speed)
 {
 	if (GoToDirection(x, y, speed) == false)
+	{
+		mTarget.isReached = true;
 		return false;
+	}
 
 	sf::Vector2f position = GetPosition(0.5f, 0.5f);
 
 	mTarget.position = { x, y };
 	mTarget.distance = Utils::GetDistance(position.x, position.y, x, y);
 	mTarget.isSet = true;
+	mTarget.isReached = false;
 
 	return true;
 }
@@ -149,7 +153,7 @@ void Entity::Update()
 	float distance = dt * mSpeed * mSpeedFactor;
 	sf::Vector2f translation = distance * mDirection;
 	mShape.move(translation);
-
+	
 	if (mTarget.isSet) 
 	{
 		float x1 = GetPosition(0.5f, 0.5f).x;
@@ -169,6 +173,7 @@ void Entity::Update()
 			SetPosition(mTarget.position.x, mTarget.position.y, 0.5f, 0.5f);
 			mDirection = sf::Vector2f(0.f, 0.f);
 			mTarget.isSet = false;
+			mTarget.isReached = true;
 		}
 	}
 
