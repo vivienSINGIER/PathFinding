@@ -15,27 +15,29 @@ std::vector<std::vector<char>> GridConfig::config2;
 std::vector<std::vector<char>> GridConfig::LoadConfig(int index)
 {
 	std::vector<std::vector<char>> config;
+ 
+ 	std::string filePath = "../../../res/Map";
+ 	filePath.append(std::to_string(index));
+ 	filePath.append(".txt");
+ 
+ 	std::fstream file(filePath.c_str(), std::ios::in);
+ 	
+ 	if (!file.is_open()) return config;
+ 	
+ 	std::string line;
+ 	while (getline(file, line))
+ 	{
+ 		std::vector<char> vLine;
+ 		for (int i = 0; i < line.size(); i++)
+ 		{
+ 			vLine.push_back(line[i]);
+ 		}
+ 		config.push_back(vLine);
+ 	}
 
-	std::string filePath = "../../../res/Map";
-	filePath.append(std::to_string(index));
-	filePath.append(".txt");
-
-	std::fstream file(filePath.c_str(), std::ios::app);
+	file.close();
+ 	return config;
 	
-	if (!file.is_open()) return config;
-	
-	std::string line;
-	while (getline(file, line))
-	{
-		std::vector<char> vLine;
-		for (int i = 0; i < line.size(); i++)
-		{
-			vLine.push_back(line[i]);
-		}
-		config.push_back(vLine);
-	}
-
-	return config;
 }
 
 void GridConfig::LoadConfigs()

@@ -195,7 +195,7 @@ void Grid::Init(const int configIndex)
             Tile tempTile;
             tempTile.position.x = j;
             tempTile.position.y = i;
-            if (GRID[i][j] == '#')
+            if (GRID[i][j] == '0')
                 tempTile.isWalkable = false;
             else
                 tempTile.isWalkable = true;
@@ -203,6 +203,12 @@ void Grid::Init(const int configIndex)
         }
         m_vData.push_back(tempTiles);
     }
+
+    for (int i = 0; i < m_vAgents.size(); i++)
+    {
+        m_vAgents[i]->Destroy();
+    }
+    m_pSelectedAgent = nullptr;
 
     CalculateNodes();
 
