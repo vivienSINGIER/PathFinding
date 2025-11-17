@@ -6,8 +6,8 @@
 #include <queue>
 
 #include "Utils.hpp"
-#include "../Debug.h"
-#include "../GridConfig.h"
+#include "Debug.h"
+#include "GridConfig.h"
 #include "Agent.h"
 #include "SFML/Graphics.hpp"
 

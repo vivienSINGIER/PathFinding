@@ -5,7 +5,7 @@
 #include "Node.hpp"
 #include "Position.hpp"
 #include "NodeData.hpp"
-#include "../Scene.h"
+#include "Scene.h"
 
 struct Tile;
 class GridConfiguration;

@@ -9,9 +9,9 @@
     "dependencies": [],
     "configuration": [
         {
-            "additional_dependencies": "sfml-graphics-s-d.lib;sfml-window-s-d.lib;sfml-audio-s-d.lib;sfml-system-s-d.lib;opengl32.lib;glu32.lib;gdi32.lib;winmm.lib;dwmapi.lib;freetype.lib;%(AdditionalDependencies)",
-            "additional_include_directories": "$(SolutionDir)../../src/LightEngine;$(SolutionDir)../../SFML-2.5.1/include",
-            "additional_library_directories": "$(SolutionDir)../../SFML-2.5.1/lib",
+            "additional_dependencies": "sfml-graphics-s-d.lib;sfml-window-s-d.lib;sfml-audio-s-d.lib;sfml-system-s-d.lib;opengl32.lib;glu32.lib;gdi32.lib;winmm.lib;dwmapi.lib;freetype.lib;LightEngine.lib;%(AdditionalDependencies)",
+            "additional_include_directories": "$(SolutionDir)../../SFML-2.5.1/include; $(SolutionDir)../../src/LightEngine",
+            "additional_library_directories": "$(SolutionDir)../../SFML-2.5.1/lib; $(SolutionDir)../../ide/vs/LightEngine/Build/Debug",
             "character_set": "Unicode",
             "conformance_mode": "true",
             "generate_debug_information": "true",
@@ -20,7 +20,7 @@
             "name": "Debug|x64",
             "out_dir": "$(ProjectDir)Build\\$(Configuration)\\",
             "platform_toolset": "v143",
-            "precompiled_header": "Use",
+            "precompiled_header": "NotUsing",
             "precompiled_header_file": "pch.h",
             "preprocessor_definitions": "_DEBUG;_CONSOLE;%(PreprocessorDefinitions);SFML_STATIC",
             "sdl_check": "true",
