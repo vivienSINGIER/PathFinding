@@ -1,4 +1,5 @@
 #include "GameManager.h"
+#include "GameManager.h"
 
 #include "Entity.h"
 #include "Debug.h"
@@ -22,6 +23,11 @@ GameManager* GameManager::Get()
 	static GameManager mInstance;
 
 	return &mInstance;
+}
+
+void GameManager::Init(unsigned int width, unsigned int height, const char* title)
+{
+
 }
 
 GameManager::~GameManager()

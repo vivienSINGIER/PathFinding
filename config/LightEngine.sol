@@ -3,7 +3,9 @@
     "minimum_version": "10.0.40219.1",
     "projects": [
         "LightEngine.prj",
-        "2DSandbox.prj"
+        "2DSandbox.prj",
+        "LightRender.prj",
+        "3DSandbox.prj"
     ],
     "solution_name": "LightEngine",
     "version": "16",
