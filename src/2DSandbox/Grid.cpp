@@ -3,6 +3,7 @@
 
 #include "Grid.h"
 
+#include <fstream>
 #include <queue>
 
 #include "Utils.hpp"
@@ -11,7 +12,7 @@
 #include "Agent.h"
 #include "SFML/Graphics.hpp"
 
-sf::Vector2i Grid::anchorPoint = { 0, 0};
+sf::Vector2i Grid::m_anchorPoint = { 0, 0};
 
 Node<Tile>* Grid::GetNode(Position const& pos)
 {
@@ -39,7 +40,7 @@ Node<Tile>* Grid::GetNode(sf::Vector2i const& pos)
 
 void Grid::OnInitialize()
 {
-    Init(gridConfigIndex);
+    Init(m_gridConfigIndex);
 }
 
 void Grid::OnUpdate()
@@ -55,11 +56,14 @@ void Grid::OnUpdate()
     for (int i = 0; i < m_vAgents.size(); i++)
     {
         Node<Tile>* n = GetNode(m_vAgents[i]->GetTilePosition());
-        Node<Tile>* n2 = GetNode(m_vAgents[i]->GetNextTilePosition());
         if (n != nullptr)
             n->data->pOccupyingAgent = m_vAgents[i];
-        if (n2 != nullptr)
-            n2->data->pOccupyingAgent = m_vAgents[i];
+
+        std::vector<Node<Tile>*> v = GetTouchingTiles(m_vAgents[i]);
+        for (int j = 0; j < v.size(); j++)
+        {
+            v[j]->data->pOccupyingAgent = m_vAgents[i];
+        }
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Tab))
@@ -88,12 +92,12 @@ void Grid::OnEvent(const sf::Event& event)
         bool isSwapping = false;
         if (event.key.code == sf::Keyboard::F1)
         {
-            gridConfigIndex--;
+            m_gridConfigIndex--;
             isSwapping = true;
         }
         if (event.key.code == sf::Keyboard::F2)
         {
-            gridConfigIndex++;
+            m_gridConfigIndex++;
             isSwapping = true;
         }
 
@@ -127,13 +131,16 @@ void Grid::OnEvent(const sf::Event& event)
             m_pSelectedAgent->SetSpeedFactor(std::max(0.f, m_pSelectedAgent->GetSpeedFactor() - 1));
         }
 
+        if (event.key.code == sf::Keyboard::S && sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
+            SaveMap();
+        
         if (isSwapping)
         {
             m_pSelectedTile = nullptr;
-            Clamp(gridConfigIndex, 1, 2);
+            Clamp(m_gridConfigIndex, 1, 2);
             m_vData.clear();
             m_vNodes.clear();
-            Init(gridConfigIndex);
+            Init(m_gridConfigIndex);
         }
     }
 
@@ -171,6 +178,8 @@ void Grid::OnEvent(const sf::Event& event)
 
 void Grid::Init(const int configIndex)
 {
+    GridConfig::LoadConfigs();
+    
     std::vector<std::vector<char>> GRID = GridConfig::GetConfig(configIndex);
     int HEIGHT = GRID.size();
     int WIDTH = GRID[0].size();
@@ -197,9 +206,9 @@ void Grid::Init(const int configIndex)
 
     CalculateNodes();
 
-    float offsetX = GetWindowWidth() / 2 - gridSize.x / 2;
-    float offsetY = GetWindowHeight() / 2 - gridSize.y / 2;
-    Grid::anchorPoint = sf::Vector2i(offsetX, offsetY);
+    float offsetX = GetWindowWidth() / 2 - m_gridSize.x / 2;
+    float offsetY = GetWindowHeight() / 2 - m_gridSize.y / 2;
+    Grid::m_anchorPoint = sf::Vector2i(offsetX, offsetY);
 }
 
 void Grid::Reset()
@@ -230,7 +239,7 @@ void Grid::Draw()
             color = sf::Color::Red;
         
         if (n->data->isWalkable || n == m_pSelectedTile)
-            Debug::DrawFilledRectangle(anchorPoint.x + p.x * 50.f, anchorPoint.y + p.y * 50.f, 50.0f, 50.0f, color);
+            Debug::DrawFilledRectangle(m_anchorPoint.x + p.x * 50.f, m_anchorPoint.y + p.y * 50.f, 50.0f, 50.0f, color);
     }
 
     if (m_pSelectedAgent != nullptr)
@@ -262,7 +271,7 @@ void Grid::CreateAgent(sf::Vector2i mousePos)
     pos *= 50;
 
     Agent* tempAgent = CreateEntity<Agent>(20.f, sf::Color::Blue);
-    tempAgent->SetPosition(pos.x + 25.f + anchorPoint.x, pos.y + 25.f + anchorPoint.y);
+    tempAgent->SetPosition(pos.x + 25.f + m_anchorPoint.x, pos.y + 25.f + m_anchorPoint.y);
 
     m_vAgents.push_back(tempAgent);
 }
@@ -311,7 +320,7 @@ Node<Tile>* Grid::AStar(Node<Tile>* startNode, Node<Tile>* endNode, Agent* pAgen
 
 sf::Vector2i Grid::GetTilePosition(sf::Vector2i worldPos)
 {
-    sf::Vector2i pos = { worldPos.x - anchorPoint.x, worldPos.y - anchorPoint.y };
+    sf::Vector2i pos = { worldPos.x - m_anchorPoint.x, worldPos.y - m_anchorPoint.y };
     if (pos.x < 0) pos.x -= 50;
     if (pos.y < 0) pos.y -= 50;
     pos /= 50;
@@ -321,7 +330,7 @@ sf::Vector2i Grid::GetTilePosition(sf::Vector2i worldPos)
 
 sf::Vector2i Grid::GetWorldPosition(sf::Vector2i gridPos)
 {
-    return { anchorPoint.x + gridPos.x * 50 + 25, anchorPoint.y + gridPos.y * 50 + 25};
+    return { m_anchorPoint.x + gridPos.x * 50 + 25, m_anchorPoint.y + gridPos.y * 50 + 25};
 }
 
 void Grid::CalculateNodes()
@@ -331,7 +340,7 @@ void Grid::CalculateNodes()
     int WIDTH = m_vData[0].size();
     int HEIGHT = m_vData.size();
 
-    gridSize = sf::Vector2i(WIDTH, HEIGHT) * 50;
+    m_gridSize = sf::Vector2i(WIDTH, HEIGHT) * 50;
     
     for (int i = 0; i < HEIGHT; i++)
     {
@@ -392,6 +401,42 @@ Node<Tile>* Grid::TrySelectedTile(int x, int y)
     if (n == nullptr)
         int i = 0;
     return n;
+}
+
+std::vector<Node<Tile>*> Grid::GetTouchingTiles(Agent* pAgent)
+{
+    std::vector<sf::Vector2i> directions;
+    std::vector<Node<Tile>*> result;
+    
+    for (int i = -1; i < 2; i++)
+    {
+        for (int j = -1; j < 2; j++)
+        {
+            if (j == 0 && i == 0) continue;
+            directions.push_back({i, j});
+        }
+    }
+
+    sf::Vector2i pos = {
+        (int)pAgent->GetPosition().x,
+        (int)pAgent->GetPosition().y};
+    Node<Tile>* pNode = GetNode(pAgent->GetTilePosition());
+    if (pNode == nullptr) return result;
+    
+    for (int i = 0; i < directions.size(); i++)
+    {
+        sf::Vector2i newPos = pos + directions[i] * (int)pAgent->GetRadius();
+        Node<Tile>* newNode = GetNode(GetTilePosition(newPos));
+        if (newNode == nullptr) continue;
+        if (newNode == pNode)   continue;
+
+        result.push_back(newNode);
+    }
+
+    if (result.size() > 0)
+        int o = 0;
+    
+    return result;
 }
 
 void Grid::TrySelectedAgent(int x, int y)
@@ -491,6 +536,34 @@ void Grid::ToggleWalkable()
             n->vNeighbours.push_back(GetNode(neig->position));
         }
     }
+}
+
+void Grid::SaveMap()
+{
+    std::string filePath = "../../../res/Map";
+    filePath.append(std::to_string(m_gridConfigIndex));
+    filePath.append(".txt");
+
+    std::ofstream file(filePath.c_str());
+    if (!file.is_open()) return;
+
+    std::string line;
+    
+    for (int i = 0; i < m_vData.size(); i++)
+    {
+        std::string temp = "";
+        for (int j = 0; j < m_vData[i].size(); j++)
+        {
+            if (m_vData[i][j].isWalkable)
+                temp.append("1");
+            else
+                temp.append("0");
+        }
+        temp.append("\n");
+        file << temp;
+    }
+
+    file.close();
 }
 
 #endif

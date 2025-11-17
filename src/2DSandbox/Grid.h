@@ -32,11 +32,11 @@ public:
     Node<Tile>* AStar(Node<Tile>* startNode, Node<Tile>* endNode, Agent* pAgent);
 
 private:
-    sf::Vector2i gridSize;
-    sf::Vector2i gridCenter;
-    static sf::Vector2i anchorPoint;            
+    sf::Vector2i m_gridSize;
+    sf::Vector2i m_gridCenter;
+    static sf::Vector2i m_anchorPoint;            
 
-    int gridConfigIndex = 1;
+    int m_gridConfigIndex = 1;
     
     std::vector<std::vector<Tile>> m_vData;
     std::vector<Node<Tile>> m_vNodes;
@@ -48,9 +48,12 @@ private:
     void CalculateNodes();
     
     Node<Tile>* TrySelectedTile(int x, int y);
+    std::vector<Node<Tile>*> GetTouchingTiles(Agent* pAgent);
     void TrySelectedAgent(int x, int y);
     void AddTile(sf::Vector2i pos);
     void ToggleWalkable();
+
+    void SaveMap();
 };
 
 #endif

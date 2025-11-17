@@ -20,7 +20,6 @@ struct Path
 	std::vector<sf::Vector2i> vDetour;
 };
 
-
 class Agent : public Entity
 {
 	sf::Vector2i m_tilePosition;

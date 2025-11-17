@@ -9,9 +9,11 @@ class GridConfig
 
 	static std::vector<std::vector<char>> config2;
 
+	static std::vector<std::vector<char>> LoadConfig(int index);
+	
 public:
+	static void LoadConfigs();
 	static std::vector<std::vector<char>>& GetConfig(int configIndex);
 };
-
 #endif
 

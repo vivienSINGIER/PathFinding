@@ -200,32 +200,16 @@ Node<Tile>* Agent::GetNextNode()
 {
 	Grid* grid = GetScene<Grid>();
 	if (grid == nullptr) return nullptr;
+	Node<Tile>* node = grid->GetNode(m_tilePosition);
 
-	if (m_vPaths.empty() == true) return nullptr;
-	Path& currentPath = m_vPaths.front();
+	sf::Vector2i worldPos = { (int)GetPosition().x, (int)GetPosition().y };
+	sf::Vector2i nextTilePos = worldPos + sf::Vector2i(mDirection.x * 25, mDirection.y * 25);
+	sf::Vector2i tileP = Grid::GetTilePosition(nextTilePos);
 
-	sf::Vector2i currPos = m_tilePosition;
-	
-	std::vector<sf::Vector2i> positions = currentPath.vPositions;
-	int startIndex = currentPath.index - 1;
-	int endIndex = currentPath.index;
-	
-	if (currentPath.detourStart != -1)
-	{
-		positions = currentPath.vDetour;
-		startIndex = currentPath.detourIndex - 1;
-		endIndex = currentPath.detourIndex;
-	}
+	Node<Tile>* nextNode = grid->GetNode(tileP);
+	if (node == nextNode) return nullptr;
 
-	if (startIndex < 0) return nullptr;
-	
-	sf::Vector2i intDirection = positions[endIndex] - positions[startIndex];
-	Clamp(intDirection.x, -1, 1);
-	Clamp(intDirection.y, -1, 1);
-
-	currPos += intDirection;
-
-	return grid->GetNode(currPos);
+	return nextNode;
 }
 
 void Agent::CheckPathOccupied(sf::Vector2i worldPos)
@@ -254,7 +238,7 @@ void Agent::CheckPathOccupied(sf::Vector2i worldPos)
 		}
 	}
 
-	if (m_StuckTimer > 10.0f)
+	if (m_StuckTimer > 1.50f)
 	{
 		if (currentPath.isLoop == false)
 		{
@@ -308,9 +292,7 @@ void Agent::SetDetour(int startIndex, int endIndex)
 	
 	if (startIndex + 1 >= currentPath.vPositions.size()) return;
 	
-	sf::Vector2i start = currentPath.vPositions[startIndex];
-	if (currentPath.detourStart != -1)
-		start = m_tilePosition;
+	sf::Vector2i start = m_tilePosition;
 
 	endIndex = startIndex + 1;
 	sf::Vector2i end = currentPath.vPositions[endIndex];
