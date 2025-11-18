@@ -9,7 +9,7 @@
     "dependencies": [],
     "configuration": [
         {
-            "additional_dependencies": "GCE.lib;%(AdditionalDependencies)",
+            "additional_dependencies": "Winmm.lib;GCE.lib;%(AdditionalDependencies)",
             "additional_include_directories": "$(SolutionDir)../../SimpleRender/GCRender/includes/;$(SolutionDir)../../SimpleRender/GCRender/includes/Core/;$(SolutionDir)../../SimpleRender/GCRender/includes/Render/",
             "additional_library_directories": "$(SolutionDir)../../SimpleRender/GCRender/lib/",
             "character_set": "Unicode",

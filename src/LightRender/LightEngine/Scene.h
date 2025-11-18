@@ -1,25 +1,26 @@
 #pragma once
+#include <Maths/Vector3.h>
 
 class GameManager;
 
 class Scene
 {
 private:
-	GameManager* mpGameManager;
+	GameManager* m_pGameManager;
 
 private:
-	void SetGameManager(GameManager* pGameManager) { mpGameManager = pGameManager; }
+	void SetGameManager(GameManager* pGameManager) { m_pGameManager = pGameManager; }
 	
 protected:
 	Scene() = default;
 
 	virtual void OnInitialize() = 0;
-	//virtual void OnEvent(const sf::Event& event) = 0;
+	/*virtual void OnEvent(const sf::Event& event) = 0;*/
 	virtual void OnUpdate() = 0;
 
 public:
 	template<typename T>
-	T* CreateEntity(float radius, const gce::Color& color);
+	T* CreateEntity(float radius, gce::Vector3f32 color);
 
 	float GetDeltaTime() const;
 

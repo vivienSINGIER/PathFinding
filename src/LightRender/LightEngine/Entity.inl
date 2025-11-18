@@ -14,7 +14,7 @@ T* Entity::GetScene() const
 
 
 template<typename T>
-T* Entity::CreateEntity(float radius, const sf::Color& color)
+T* Entity::CreateEntity(float radius, gce::Vector3f32 color)
 {
 	return GetScene()->CreateEntity<T>(radius, color);
 }

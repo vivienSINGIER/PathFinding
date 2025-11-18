@@ -1,4 +1,3 @@
-//#include <SFML/System/Vector2.hpp>
 
 #include <cmath>
 #include <Maths/Vector3.h>

@@ -9,6 +9,7 @@
 GameManager::GameManager()
 {
 	m_pWindow = nullptr;
+	m_pCamera = nullptr;
 	m_DeltaTime = 0.0f;
 	m_pScene = nullptr;
 	m_WindowWidth = -1;
@@ -37,10 +38,8 @@ void GameManager::Init(unsigned int width, unsigned int height)
 {
 	_ASSERT(m_pWindow == nullptr);
 
-	m_pWindow = new gce::Window(L"Game Window", width, height);
+	m_pWindow = new Window(L"Game Window", width, height);
 	m_pCamera = new Camera(CameraType::PERSPECTIVE);
-
-
 
 	m_WindowWidth = width;
 	m_WindowHeight = height;
@@ -84,71 +83,71 @@ void GameManager::HandleInput()
 
 void GameManager::Update()
 {
-	//m_pScene->OnUpdate();
+	m_pScene->OnUpdate();
 
- //   //Update
- //   for (auto it = mEntities.begin(); it != mEntities.end(); )
- //   {
-	//	Entity* entity = *it;
+    //Update
+    for (auto it = mEntities.begin(); it != mEntities.end(); )
+    {
+		Entity* entity = *it;
 
- //       entity->Update();
+        entity->Update();
 
- //       if (entity->ToDestroy() == false)
- //       {
- //           ++it;
- //           continue;
- //       }
+        if (entity->ToDestroy() == false)
+        {
+            ++it;
+            continue;
+        }
 
- //       mEntitiesToDestroy.push_back(entity);
- //       it = mEntities.erase(it);
- //   }
+        mEntitiesToDestroy.push_back(entity);
+        it = mEntities.erase(it);
+    }
 
- //   //Collision
- //   for (auto it1 = mEntities.begin(); it1 != mEntities.end(); ++it1)
- //   {
- //       auto it2 = it1;
- //       ++it2;
- //       for (; it2 != mEntities.end(); ++it2)
- //       {
- //           Entity* entity = *it1;
- //           Entity* otherEntity = *it2;
+    //Collision
+    for (auto it1 = mEntities.begin(); it1 != mEntities.end(); ++it1)
+    {
+        auto it2 = it1;
+        ++it2;
+        for (; it2 != mEntities.end(); ++it2)
+        {
+            Entity* entity = *it1;
+            Entity* otherEntity = *it2;
 
- //           if (entity->IsColliding(otherEntity))
- //           {
-	//			if (entity->IsRigidBody() && otherEntity->IsRigidBody())
-	//				entity->Repulse(otherEntity);
+            if (entity->IsColliding(otherEntity))
+            {
+				if (entity->IsRigidBody() && otherEntity->IsRigidBody())
+					entity->Repulse(otherEntity);
 
- //               entity->OnCollision(otherEntity);
- //               otherEntity->OnCollision(entity);
- //           }
- //       }
- //   }
+                entity->OnCollision(otherEntity);
+                otherEntity->OnCollision(entity);
+            }
+        }
+    }
 
-	//for (auto it = mEntitiesToDestroy.begin(); it != mEntitiesToDestroy.end(); ++it) 
-	//{
-	//	delete *it;
-	//}
+	for (auto it = mEntitiesToDestroy.begin(); it != mEntitiesToDestroy.end(); ++it) 
+	{
+		delete *it;
+	}
 
- //   mEntitiesToDestroy.clear();
+    mEntitiesToDestroy.clear();
 
-	//for (auto it = mEntitiesToAdd.begin(); it != mEntitiesToAdd.end(); ++it)
-	//{
-	//	mEntities.push_back(*it);
-	//}
+	for (auto it = mEntitiesToAdd.begin(); it != mEntitiesToAdd.end(); ++it)
+	{
+		mEntities.push_back(*it);
+	}
 
-	//mEntitiesToAdd.clear();
+	mEntitiesToAdd.clear();
 }
 
 void GameManager::Draw()
 {
 	//Debug::Get()->DrawBack(m_pWindow);
 
-	//for (Entity* entity : mEntities)
-	//{
-	//	m_pWindow->draw(*entity->GetShape());
-	//}
-	//
+	for (Entity* entity : mEntities)
+	{
+		m_pWindow->Draw(*entity->GetShape());
+	}
+	
 	//Debug::Get()->DrawFront(m_pWindow);
 
-	//m_pWindow->Display();
+	m_pWindow->Display();
 }

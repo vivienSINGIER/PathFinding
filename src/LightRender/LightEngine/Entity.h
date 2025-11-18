@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Maths/Vector3.h>
+#include "../GC-simple-render/Geometries.h"
 
 class Scene;
 
@@ -15,7 +16,7 @@ class Entity
     };
 
 protected:
-    gce::Geometry* m_Shape;
+    Geometry* m_Shape;
     gce::Vector3f32 mDirection;
 	Target mTarget;
 	float m_Radius = 0.f;
@@ -26,10 +27,10 @@ protected:
 	bool mRigidBody = false;
 
 public:
-	bool GoToDirection(int x, int y, float speed = -1.f);
-    bool GoToPosition(int x, int y, float speed = -1.f);
-    void SetPosition(float x, float y, float ratioX = 0.5f, float ratioY = 0.5f);
-	void SetDirection(float x, float y, float speed = -1.f);
+	bool GoToDirection(float x, float y, float z, float speed = -1.f);
+    bool GoToPosition(float x, float y, float z, float speed = -1.f);
+    void SetPosition(float x, float y, float z, float ratioX = 0.5f, float ratioY = 0.5f, float ratioZ = 0.5f);
+	void SetDirection(float x, float y, float z, float speed = -1.f);
 	void SetSpeed(float speed) { mSpeed = speed; }
 	void SetSpeedFactor(float speedFactor) { mSpeedFactor = speedFactor; }
 	float GetSpeedFactor() { return mSpeedFactor; }
@@ -38,8 +39,8 @@ public:
 	void SetRigidBody(bool isRigitBody) { mRigidBody = isRigitBody; }
 	bool IsRigidBody() const { return mRigidBody; }
 
-    gce::Vector3f32 GetPosition(float ratioX = 0.5f, float ratioY = 0.5f) const;
-	gce::Geometry* GetShape() { return m_Shape; }
+    gce::Vector3f32 GetPosition(float ratioX = 0.5f, float ratioY = 0.5f, float ratioZ = 0.5f) const;
+	Geometry* GetShape() { return m_Shape; }
 
 	bool IsTag(int tag) const { return mTag == tag; }
     bool IsColliding(Entity* other) const;
@@ -55,7 +56,7 @@ public:
 	float GetDeltaTime() const;
 
     template<typename T>
-    T* CreateEntity(float radius, const sf::Color& color);
+    T* CreateEntity(float radius, gce::Vector3f32 color);
 
 protected:
     Entity() = default;
@@ -68,7 +69,7 @@ protected:
 	
 private:
     void Update();
-	void Initialize(float radius);
+	void Initialize(float radius, gce::Vector3f32 color);
 	void Repulse(Entity* other);
 
     friend class GameManager;

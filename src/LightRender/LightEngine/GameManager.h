@@ -2,7 +2,7 @@
 
 #include <list>
 
-#include <Window.h>
+#include "../GC-simple-render/Window.h"
 #include "../GC-simple-render/Camera.h"
 #include "../Chrono.h"
 
@@ -16,7 +16,7 @@ class GameManager
 	std::list<Entity*> mEntitiesToDestroy;
 	std::list<Entity*> mEntitiesToAdd;
 
-	gce::Window* m_pWindow;
+	Window* m_pWindow;
 
 	Camera* m_pCamera;
 
@@ -52,7 +52,7 @@ public:
 
 	float GetDeltaTime() const { return m_DeltaTime; }
 	Scene* GetScene() const { return m_pScene; }
-	gce::Window* GetWindow() const { return m_pWindow; }
+	Window* GetWindow() const { return m_pWindow; }
 
 	friend Debug;
 	friend Scene;

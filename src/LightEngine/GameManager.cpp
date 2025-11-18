@@ -25,9 +25,17 @@ GameManager* GameManager::Get()
 	return &mInstance;
 }
 
-void GameManager::Init(unsigned int width, unsigned int height, const char* title)
+void GameManager::CreateWindow(unsigned int width, unsigned int height, const char* title, int fpsLimit, sf::Color clearColor)
 {
+	_ASSERT(mpWindow == nullptr);
 
+	mpWindow = new sf::RenderWindow(sf::VideoMode(width, height), title);
+	mpWindow->setFramerateLimit(fpsLimit);
+
+	mWindowWidth = width;
+	mWindowHeight = height;
+
+	mClearColor = clearColor;
 }
 
 GameManager::~GameManager()
