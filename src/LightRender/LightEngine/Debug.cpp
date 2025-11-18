@@ -1,125 +1,235 @@
-//#include "Debug.h"
+#include "../../LightRender/LightEngine/Debug.h"
+
+#include "GameManager.h"
+
+// #include <SFML/Graphics/RenderWindow.hpp>
+
+#include <string>
+
+#include "../GC-simple-render/Geometries.h"
+
+Debug* Debug::Get()
+{
+	static Debug mInstance;
+
+	return &mInstance;
+}
+
+void Debug::Init()
+{
+	for (int i = 0; i < 50; i++)
+	{
+		DebugGeo geo;
+		geo.pGeometry = new Cylinder();
+		m_vLines.push_back(geo);
+	}
+
+	for (int i = 0; i < 50; i++)
+	{
+		DebugGeo geo;
+		geo.pGeometry = new Sphere();
+		m_vLines.push_back(geo);
+	}
+
+	for (int i = 0; i < 50; i++)
+	{
+		DebugGeo geo;
+		geo.pGeometry = new Cube();
+		m_vLines.push_back(geo);
+	}
+}
+
+void Debug::Draw(Window& win)
+{
+	// Lines
+	for (int i = 0; i < m_vLines.size(); i++)
+	{
+		if (m_vLines[i].isUsed == false)
+			continue;
+		win.Draw(*m_vLines[i].pGeometry);
+	}
+	
+	// Spheres
+	for (int i = 0; i < m_vSpheres.size(); i++)
+	{
+		if (m_vSpheres[i].isUsed == false)
+			continue;
+		win.Draw(*m_vSpheres[i].pGeometry);
+	}
+
+	// Cubes
+	for (int i = 0; i < m_vCubes.size(); i++)
+	{
+		if (m_vCubes[i].isUsed == false)
+			continue;
+		win.Draw(*m_vCubes[i].pGeometry);
+	}
+
+	// Text
+	for (int i = 0; i < m_vTexts.size(); i++)
+	{
+		if (m_vTexts[i].isUsed == false)
+			continue;
+		win.DrawText(*m_vTexts[i].pText);
+	}
+}
+
+void Debug::Reset()
+{
+	for (int i = 0; i < m_vLines.size(); i++)
+	{
+		Geometry* geo = m_vLines[i].pGeometry;
+		if (geo == nullptr) continue;
+
+		geo->SetPosition({0.0f, 0.0f, 0.0f});
+		geo->SetRotation({0.0f, 0.0f, 0.0f});
+		geo->SetScale({1.0f, 1.0f, 1.0f});
+		m_vLines[i].isUsed = false;
+	}
+
+	for (int i = 0; i < m_vSpheres.size(); i++)
+	{
+		Geometry* geo = m_vSpheres[i].pGeometry;
+		if (geo == nullptr) continue;
+
+		geo->SetPosition({0.0f, 0.0f, 0.0f});
+		geo->SetRotation({0.0f, 0.0f, 0.0f});
+		geo->SetScale({1.0f, 1.0f, 1.0f});
+		m_vSpheres[i].isUsed = false;
+	}
+
+	for (int i = 0; i < m_vCubes.size(); i++)
+	{
+		Geometry* geo = m_vCubes[i].pGeometry;
+		if (geo == nullptr) continue;
+
+		geo->SetPosition({0.0f, 0.0f, 0.0f});
+		geo->SetRotation({0.0f, 0.0f, 0.0f});
+		geo->SetScale({1.0f, 1.0f, 1.0f});
+		m_vCubes[i].isUsed = false;
+	}
+}
+
+int Debug::GetFirstAvailableLine()
+{
+	for (int i = 0; i < m_vLines.size(); i++)
+	{
+		if (m_vLines[i].isUsed == false) return i;
+	}
+	return -1;
+}
+
+int Debug::GetFirstAvailableText()
+{
+	for (int i = 0; i < m_vTexts.size(); i++)
+	{
+		if (m_vTexts[i].isUsed == false) return i;
+	}
+	return -1;
+}
+
+int Debug::GetFirstAvailableSphere()
+{
+	for (int i = 0; i < m_vSpheres.size(); i++)
+	{
+		if (m_vSpheres[i].isUsed == false) return i;
+	}
+	return -1;
+}
+
+int Debug::GetFirstAvailableCube()
+{
+	for (int i = 0; i < m_vCubes.size(); i++)
+	{
+		if (m_vCubes[i].isUsed == false) return i;
+	}
+	return -1;
+}
+
+void Debug::DrawLine(gce::Vector3f32 const& start, gce::Vector3f32 const& end, gce::Vector3f32 const& color)
+{
+	int index = Get()->GetFirstAvailableLine();
+	if (index == -1) return;
+
+	DebugGeo& geo = Get()->m_vLines[index];
+	Geometry* cyl = geo.pGeometry;
+	if (cyl == nullptr) return;
+	geo.isUsed = true;
+	
+	gce::Vector3f32 dir = end - start;
+	float length = dir.Norm();
+
+	// midpoint
+	gce::Vector3f32 mid = start + dir * 0.5f;
+	cyl->SetPosition(mid);
+
+	// scale (assuming centered 1.0 height cylinder from -0.5 to +0.5)
+	cyl->SetScale({1.0f, length * 0.5f, 1.0f});
+
+	// normalize direction
+	gce::Vector3f32 d = dir.Normalize();
+
+	// Euler from direction (Y is up axis)
+	float yaw   = atan2(d.x, d.z);
+	float pitch = atan2(-d.y, sqrt(d.x*d.x + d.z*d.z));
+
+	// set rotation (radians)
+	cyl->SetRotation({pitch, yaw, 0.0f});
+}
+
+void Debug::DrawCube(gce::Vector3f32 const& start, gce::Vector3f32 const& end, gce::Vector3f32 const& color)
+{
+	int index = Get()->GetFirstAvailableCube();
+	if (index == -1) return;
+
+	DebugGeo& geo = Get()->m_vLines[index];
+	Geometry* cube = geo.pGeometry;
+	if (cube == nullptr) return;
+	geo.isUsed = true;
+	
+	gce::Vector3f32 size = end - start;
+	gce::Vector3f32 mid = start + size * 0.5f;
+
+	cube->SetPosition(mid);
+	cube->SetScale({abs(size.x), abs(size.y), abs(size.z)});
+}
+
+void Debug::DrawSphere(gce::Vector3f32 const& center, float radius, gce::Vector3f32 const& color)
+{
+	int index = Get()->GetFirstAvailableLine();
+	if (index == -1) return;
+
+	DebugGeo& geo = Get()->m_vLines[index];
+	Geometry* sphere = geo.pGeometry;
+	if (sphere == nullptr) return;
+	geo.isUsed = true;
+
+	sphere->SetPosition(center);
+	sphere->SetScale({radius, radius, radius});
+}
+
+
+// void Debug::DrawText(float x, float y, const std::string& text, const sf::Color& color)
+// {
+// 	DrawText(x, y, text, 0.f, 0.f, color);
+// }
 //
-//#include "GameManager.h"
+// void Debug::DrawText(float x, float y, const std::string& text, float ratioX, float ratioY, const sf::Color& color)
+// {
+// 	_ASSERT(ratioX >= 0.f && ratioX <= 1.f);
+// 	_ASSERT(ratioY >= 0.f && ratioY <= 1.f);
 //
-////#include <SFML/Graphics/RenderWindow.hpp>
+// 	sf::Text sfText;
 //
-//#include <string>
+// 	sfText.setFont(GameManager::Get()->GetFont());
+// 	sfText.setString(text);
+// 	sfText.setCharacterSize(20);
+// 	sfText.setFillColor(color);
+// 	sfText.setPosition(x, y);
 //
-//Debug* Debug::Get()
-//{
-//	static Debug mInstance;
+// 	const sf::FloatRect& bounds = sfText.getLocalBounds();
+// 	sfText.setOrigin(bounds.width * ratioX, bounds.height * ratioY);
 //
-//	return &mInstance;
-//}
-//
-//void Debug::DrawBack(sf::RenderWindow* pRenderWindow)
-//{
-//	for (sf::RectangleShape& rectangle : mRectangles)
-//	{
-//		pRenderWindow->draw(rectangle);
-//	}
-//
-//	mRectangles.clear();
-//}
-//
-//void Debug::DrawFront(sf::RenderWindow* pRenderWindow)
-//{
-//	for (Line& line : mLines)
-//	{
-//		pRenderWindow->draw(&line.start, 2, sf::Lines);
-//	}
-//
-//	mLines.clear();
-//
-//	for (sf::Text& text : mTexts)
-//	{
-//		pRenderWindow->draw(text);
-//	}
-//
-//	mTexts.clear();
-//
-//	for (sf::CircleShape& circle : mCircles)
-//	{
-//		pRenderWindow->draw(circle);
-//	}
-//
-//	mCircles.clear();
-//
-//	for (sf::RectangleShape& rectangle : mRectangles)
-//	{
-//		pRenderWindow->draw(rectangle);
-//	}
-//	
-//	mRectangles.clear();
-//}
-//
-//void Debug::DrawLine(float x1, float y1, float x2, float y2, const sf::Color& color)
-//{
-//	Line line;
-//
-//	line.start = sf::Vertex(sf::Vector2f(x1, y1));
-//	line.start.color = color;
-//
-//	line.end = sf::Vertex(sf::Vector2f(x2, y2));
-//	line.end.color = color;
-//
-//	Debug::Get()->mLines.push_back(line);
-//}
-//
-//void Debug::DrawRectangle(float x, float y, float width, float height, const sf::Color& color)
-//{
-//	DrawLine(x, y, x + width, y, color);
-//	DrawLine(x + width, y, x + width, y + height, color);
-//	DrawLine(x + width, y + height, x, y + height, color);
-//	DrawLine(x, y + height, x, y, color);
-//}
-//
-//void Debug::DrawFilledRectangle(float x, float y, float width, float height, const sf::Color& color)
-//{
-//	sf::RectangleShape rectangle;
-//
-//	rectangle.setSize({ width, height });
-//	rectangle.setPosition(x, y);
-//	rectangle.setFillColor(color);
-//
-//	rectangle.setOutlineThickness(1.f);
-//	rectangle.setOutlineColor(sf::Color::Black);
-//
-//	Debug::Get()->mRectangles.push_back(rectangle);
-//}
-//
-//void Debug::DrawCircle(float x, float y, float radius, const sf::Color& color)
-//{
-//	sf::CircleShape circle;
-//
-//	circle.setRadius(radius);
-//	circle.setFillColor(color);
-//	circle.setPosition(x - radius, y - radius);
-//
-//	Debug::Get()->mCircles.push_back(circle);
-//}
-//
-//void Debug::DrawText(float x, float y, const std::string& text, const sf::Color& color)
-//{
-//	DrawText(x, y, text, 0.f, 0.f, color);
-//}
-//
-//void Debug::DrawText(float x, float y, const std::string& text, float ratioX, float ratioY, const sf::Color& color)
-//{
-//	_ASSERT(ratioX >= 0.f && ratioX <= 1.f);
-//	_ASSERT(ratioY >= 0.f && ratioY <= 1.f);
-//
-//	sf::Text sfText;
-//
-//	sfText.setFont(GameManager::Get()->GetFont());
-//	sfText.setString(text);
-//	sfText.setCharacterSize(20);
-//	sfText.setFillColor(color);
-//	sfText.setPosition(x, y);
-//
-//	const sf::FloatRect& bounds = sfText.getLocalBounds();
-//	sfText.setOrigin(bounds.width * ratioX, bounds.height * ratioY);
-//
-//	Debug::Get()->mTexts.push_back(sfText);
-//}
+// 	Debug::Get()->mTexts.push_back(sfText);
+// }
+
