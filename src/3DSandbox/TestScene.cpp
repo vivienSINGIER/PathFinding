@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "TestScene.h"
 #include <Maths/Vector3.h>
 #include "GC-simple-render/InputsMethods.h"
