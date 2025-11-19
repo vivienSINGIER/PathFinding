@@ -20,6 +20,7 @@ public:
     Node<Tile>* GetNode(gce::Vector2i32 const& pos);
     static gce::Vector2i32 GetTilePosition(gce::Vector3f32 worldPos);
     static gce::Vector3f32 GetWorldPosition(gce::Vector2i32 gridPos);
+    static gce::Vector3f32 GetWorldPosition(Position const& gridPos);
 
     void OnInitialize() override;
     void OnUpdate() override;

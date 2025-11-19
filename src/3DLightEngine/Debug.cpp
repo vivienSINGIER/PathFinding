@@ -151,6 +151,8 @@ void Debug::DrawLine(gce::Vector3f32 const& start, gce::Vector3f32 const& end, g
 	int index = Get()->GetFirstAvailableLine();
 	if (index == -1) return;
 
+	//TODO Use Quaternions
+	
 	DebugGeo& geo = Get()->m_vLines[index];
 	Geometry* cyl = geo.pGeometry;
 	if (cyl == nullptr) return;

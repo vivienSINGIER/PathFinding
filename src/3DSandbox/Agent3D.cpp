@@ -8,7 +8,7 @@
 #include "Maths/MathsFunctions.hpp"
 //#include "LightEngine/Debug.h"
 
-#define SPEED 80.0f
+#define SPEED 2.0f
 
 void Agent3D::OnInitialize()
 {
@@ -36,7 +36,11 @@ void Agent3D::OnUpdate()
 
 	m_tilePosition = grid->GetTilePosition(m_Shape->GetPosition());
 	if (m_tilePosition != oldPos && grid->GetNode(oldPos) != nullptr)
+	{
 		m_tilePosition = m_nextPos;
+	}
+
+	std::cout << m_tilePosition.x << ", " << m_tilePosition.y << std::endl;
 
 	if (m_vPaths.empty()) return;
 
@@ -73,7 +77,7 @@ void Agent3D::SetTarget()
 			{
 				gce::Vector2i32 p = { currentPath.vDetour[currentPath.detourIndex].x, currentPath.vDetour[currentPath.detourIndex].y };
 				gce::Vector3f32 wP = Grid3D::GetWorldPosition(p);
-				GoToPosition(wP.x, wP.y, wP.z, SPEED);
+				GoToPosition(wP.x, GetPosition().y, wP.z, SPEED);
 			}
 			else
 			{
@@ -88,8 +92,7 @@ void Agent3D::SetTarget()
 		{
 			gce::Vector2i32 p = { currentPath.vPositions[currentPath.index].x, currentPath.vPositions[currentPath.index].y };
 			gce::Vector3f32 wP = Grid3D::GetWorldPosition(p);
-			GoToPosition(wP.x, wP.y, wP.z, SPEED);
-			std::cout << currentPath.index << std::endl;
+			GoToPosition(wP.x, GetPosition().y, wP.z, SPEED);
 		}
 	}
 	else if (currentPath.isLoop == false)
@@ -129,8 +132,8 @@ void Agent3D::CheckPathAvailable()
 	}
 
 	gce::Vector2i32 intDirection =  positions[endIndex] - positions[startIndex];
-	gce::Clamp(intDirection.x, -1, 1);
-	gce::Clamp(intDirection.y, -1, 1);
+	intDirection.x = gce::Clamp(intDirection.x, -1, 1);
+	intDirection.y = gce::Clamp(intDirection.y, -1, 1);
 
 	while (currPos != positions[endIndex])
 	{
@@ -200,8 +203,8 @@ Node<Tile>* Agent3D::GetNextNode()
 	if (grid == nullptr) return nullptr;
 	Node<Tile>* node = grid->GetNode(m_tilePosition);
 
-	gce::Vector3f32 worldPos = { GetPosition() };
-	gce::Vector3f32 nextTilePos = worldPos + gce::Vector3f32(mDirection.x * 25, mDirection.y * 25, mDirection.z * 25);
+	gce::Vector3f32 worldPos = GetPosition();
+	gce::Vector3f32 nextTilePos = worldPos + gce::Vector3f32(mDirection.x * GetRadius(), mDirection.y * GetRadius(), mDirection.z * GetRadius());
 	gce::Vector2i32 tileP = Grid3D::GetTilePosition(nextTilePos);
 
 	Node<Tile>* nextNode = grid->GetNode(tileP);

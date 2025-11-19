@@ -52,7 +52,16 @@ void Grid3D::OnUpdate()
 
     m_pSelectedTile = TrySelectedTile(cursorPos.x, cursorPos.y);
     if (m_vAgents.empty() == false)
-        m_pSelectedAgent = m_vAgents[m_selectedAgentIndex];
+    {
+        Agent3D* newSelected = m_vAgents[m_selectedAgentIndex];
+        if (newSelected != m_pSelectedAgent)
+        {
+            if (m_pSelectedAgent != nullptr)
+                m_pSelectedAgent->SetColor({0.0f, 0.0f, 1.0f});
+            m_pSelectedAgent = newSelected;
+            m_pSelectedAgent->SetColor({1.0f, 1.0f, 0.0f});
+        }
+    }
     
     for (int i = 0; i < m_vNodes.size(); i++)
     {
@@ -114,6 +123,15 @@ void Grid3D::HandleInput()
     
     if (GetKeyDown(Keyboard::B))
         ToggleWalkable();
+
+    if (GetKeyDown(Keyboard::ENTER))
+    {
+        if (m_pSelectedTile != nullptr && m_pSelectedAgent != nullptr)
+        {
+            gce::Vector2i32 target = {m_pSelectedTile->data->position.x, m_pSelectedTile->data->position.y};
+            m_pSelectedAgent->AddPath(target);
+        }
+    }
 }
 
 //void Grid3D::OnEvent(const sf::Event& event)
@@ -300,8 +318,9 @@ void Grid3D::CreateAgent()
     if (tempNode->data->isWalkable == false || tempNode->data->pOccupyingAgent != nullptr)
         return;
 
+    
     Agent3D* tempAgent = CreateEntity<Agent3D>(1.f, gce::Vector3f32(0.0f, 0.0f, 1.0f));
-    tempAgent->SetPosition(m_anchorPoint.x + pos.x * BlockSize, BlockSize * 0.5f, m_anchorPoint.z - pos.y * BlockSize);
+    tempAgent->SetPosition(m_anchorPoint.x + pos.x * BlockSize, BlockSize * 0.5f + 1, m_anchorPoint.z - pos.y * BlockSize);
 
     m_vAgents.push_back(tempAgent);
 }
@@ -350,19 +369,28 @@ Node<Tile>* Grid3D::AStar(Node<Tile>* startNode, Node<Tile>* endNode, Agent3D* p
 
 gce::Vector2i32 Grid3D::GetTilePosition(gce::Vector3f32 worldPos)
 {
-    gce::Vector2f32 pos = { worldPos.x - m_anchorPoint.x, worldPos.z + m_anchorPoint.z };
+    gce::Vector2f32 pos = { worldPos.x - m_anchorPoint.x, -(worldPos.z - m_anchorPoint.z) };
     if (pos.x < 0) pos.x -= BlockSize;
     if (pos.y < 0) pos.y -= BlockSize;
     pos /= BlockSize;
+    
+    gce::Vector2i32 result(gce::RoundToInt(pos.x), gce::RoundToInt(pos.y));
 
-    return gce::Vector2i32(pos);
+    return result;
 }
 
 gce::Vector3f32 Grid3D::GetWorldPosition(gce::Vector2i32 gridPos)
 {
-    return { m_anchorPoint.x + gridPos.x * BlockSize + BlockSize * 0.5f,
+    return { m_anchorPoint.x + gridPos.x * BlockSize,
         0.0f,
-        m_anchorPoint.z + gridPos.y * BlockSize + BlockSize * 0.5f };
+        m_anchorPoint.z - gridPos.y * BlockSize };
+}
+
+gce::Vector3f32 Grid3D::GetWorldPosition(Position const& gridPos)
+{
+    return { m_anchorPoint.x + (float32)gridPos.x * BlockSize,
+        0.0f,
+        m_anchorPoint.z - (float32)gridPos.y * BlockSize };
 }
 
 void Grid3D::CalculateNodes()
@@ -449,31 +477,36 @@ std::vector<Node<Tile>*> Grid3D::GetTouchingTiles(Agent3D* pAgent)
         }
     }
 
-    gce::Vector3f32 pos =
-    {
+    gce::Vector3f32 pos = {
         pAgent->GetPosition().x,
         pAgent->GetPosition().y,
         pAgent->GetPosition().z };
-    Node<Tile>* pNode = GetNode(pAgent->GetTilePosition());
+
+    gce::Vector2i32 currTilePos = pAgent->GetTilePosition();
+    Node<Tile>* pNode = GetNode(currTilePos);
     if (pNode == nullptr) return result;
 
     for (int i = 0; i < directions.size(); i++)
     {
-        gce::Vector3f32 offset = directions[i];
-        offset.x *= pAgent->GetRadius();
-        offset.z *= pAgent->GetRadius();
-        gce::Vector3f32 newPos = pos + offset;
+        Node<Tile>* other = GetNode(currTilePos + gce::Vector2i32(directions[i].x, directions[i].z));
+        if (other == nullptr) continue;
 
-        Node<Tile>* newNode = GetNode(GetTilePosition(newPos));
-        if (newNode == nullptr) continue;
-        if (newNode == pNode)   continue;
+        gce::Vector3f32 otherPos = GetWorldPosition(other->data->position);
+        
+        float dx = abs(otherPos.x - pos.x);
+        float dy = abs(otherPos.z - pos.z);
 
-        result.push_back(newNode);
+        if (dx > BlockSize * 0.5f + pAgent->GetRadius())
+            continue;
+        if (dy > BlockSize * 0.5f + pAgent->GetRadius())
+            continue;
+
+        result.push_back(other);
     }
 
-    if (result.size() > 0)
+    if (result.size() > 1)
         int o = 0;
-
+    
     return result;
 }
 

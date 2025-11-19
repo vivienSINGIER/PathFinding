@@ -39,6 +39,8 @@ public:
 	void SetRigidBody(bool isRigitBody) { mRigidBody = isRigitBody; }
 	bool IsRigidBody() const { return mRigidBody; }
 
+	void SetColor(gce::Vector3f32 const& color) {m_Shape->SetColor(color); }
+
     gce::Vector3f32 GetPosition() const;
 	Geometry* GetShape() { return m_Shape; }
 
