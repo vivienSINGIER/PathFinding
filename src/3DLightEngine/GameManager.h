@@ -3,6 +3,7 @@
 #include <list>
 
 #include "GC-simple-render/Camera.h"
+#include "GC-simple-render/Window.h"
 #include "Chrono.h"
 
 
