@@ -45,7 +45,7 @@ class Debug
 	int GetFirstAvailableText();
 	int GetFirstAvailableSphere();
 	int GetFirstAvailableCube();
-
+	
 public:
 	static Debug* Get();
 	void Init();

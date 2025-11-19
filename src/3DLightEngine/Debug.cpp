@@ -31,7 +31,7 @@ void Debug::Init()
 		m_vSpheres.push_back(geo);
 	}
 
-	for (int i = 0; i < 50; i++)
+	for (int i = 0; i < 500; i++)
 	{
 		DebugGeo geo;
 		geo.pGeometry = new Cube();
@@ -154,29 +154,25 @@ void Debug::DrawLine(gce::Vector3f32 const& start, gce::Vector3f32 const& end, g
 	DebugGeo& geo = Get()->m_vLines[index];
 	Geometry* cyl = geo.pGeometry;
 	if (cyl == nullptr) return;
+	cyl->SetColor(color);
 	geo.isUsed = true;
 	
 	gce::Vector3f32 dir = end - start;
 	float length = dir.Norm();
-
-	// midpoint
+	
 	gce::Vector3f32 mid = start + dir * 0.5f;
 	cyl->SetPosition(mid);
-
-	// scale (assuming centered 1.0 height cylinder from -0.5 to +0.5)
-	cyl->SetScale({1.0f, length * 0.5f, 1.0f});
-
-	// normalize direction
-	gce::Vector3f32 d = dir.Normalize();
-
-	// TODO Fix
 	
-	// Euler from direction (Y is up axis)
-	float yaw   = atan2(d.x, d.z);
-	float pitch = atan2(-d.y, sqrt(d.x*d.x + d.z*d.z));
+	cyl->SetScale({0.1f, length, 0.1f});
+	
+	gce::Vector3f32 d = dir.Normalize();
+	
+	float yaw   = atan2(d.x, d.z) * (180 / gce::PI);
+	float pitch = atan2(d.y, sqrt(d.x * d.x + d.z * d.z)) * (180 / gce::PI);
 
-	// set rotation (radians)
-	cyl->SetRotation({pitch, yaw, 0.0f});
+	pitch += 90.0f;
+	
+	cyl->SetRotation({yaw, pitch, 0.0f});
 }
 
 void Debug::DrawCube(gce::Vector3f32 const& start, gce::Vector3f32 const& end, gce::Vector3f32 const& color)
@@ -187,6 +183,7 @@ void Debug::DrawCube(gce::Vector3f32 const& start, gce::Vector3f32 const& end, g
 	DebugGeo& geo = Get()->m_vCubes[index];
 	Geometry* cube = geo.pGeometry;
 	if (cube == nullptr) return;
+	cube->SetColor(color);
 	geo.isUsed = true;
 	
 	gce::Vector3f32 size = end - start;
@@ -204,6 +201,7 @@ void Debug::DrawSphere(gce::Vector3f32 const& center, float radius, gce::Vector3
 	DebugGeo& geo = Get()->m_vSpheres[index];
 	Geometry* sphere = geo.pGeometry;
 	if (sphere == nullptr) return;
+	sphere->SetColor(color);
 	geo.isUsed = true;
 
 	sphere->SetPosition(center);

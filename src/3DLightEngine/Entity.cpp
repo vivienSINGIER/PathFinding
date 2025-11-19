@@ -155,9 +155,9 @@ void Entity::Update()
 		float y2 = y1 + mDirection.y * mTarget.distance;
 		float z2 = z1 + mDirection.z * mTarget.distance; 
 
-		Debug::DrawLine(GetPosition(), mTarget.position, gce::Vector3f32({ 0.0f, 0.0f, 1.0f }));
+		Debug::DrawLine(GetPosition(), mTarget.position, gce::Vector3f32({ 0.0f, 1.0f, 1.0f }));
 
-		Debug::DrawSphere(mTarget.position, 0.5f, gce::Vector3f32({ 0.0f, 0.0f, 1.0f }));
+		Debug::DrawSphere(mTarget.position, 0.5f, gce::Vector3f32({ 1.0f, 0.0f, 1.0f }));
 		
 		mTarget.distance = Utils::GetDistance(GetPosition(), mTarget.position);
 
