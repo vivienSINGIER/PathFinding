@@ -161,7 +161,7 @@ void Entity::Update()
 		
 		mTarget.distance = Utils::GetDistance(GetPosition(), mTarget.position);
 
-		if (mTarget.distance <= 0.01f)
+		if (mTarget.distance <= 0.1f)
 		{
 			SetPosition(mTarget.position.x, mTarget.position.y, mTarget.position.z);
 			mDirection = gce::Vector3f32({ 0.f, 0.f, 0.f });
