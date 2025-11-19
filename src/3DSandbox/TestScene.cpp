@@ -1,7 +1,8 @@
-#include "pch.h"
+
+
 #include "TestScene.h"
 #include <Maths/Vector3.h>
-#include "GC-simple-render/InputsMethods.h"
+// #include "GC-simple-render/InputsMethods.h"
 
 void TestScene::OnInitialize()
 {
@@ -16,9 +17,9 @@ void TestScene::OnInitialize()
 
 void TestScene::OnUpdate()
 {
-	if (GetKeyDown(Keyboard::ENTER))
-	{
-		m_pEntity1->GoToPosition(-m_pEntity1->GetPosition().x, 0.0f, 0.0f, 5.0f);
-		m_pEntity2->GoToPosition(-m_pEntity2->GetPosition().x, 0.2f, 0.0f, 5.0f);
-	}
+	// if (GetKeyDown(Keyboard::ENTER))
+	// {
+	// 	m_pEntity1->GoToPosition(-m_pEntity1->GetPosition().x, 0.0f, 0.0f, 5.0f);
+	// 	m_pEntity2->GoToPosition(-m_pEntity2->GetPosition().x, 0.2f, 0.0f, 5.0f);
+	// }
 }
