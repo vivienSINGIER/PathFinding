@@ -6,7 +6,7 @@
 
 #include "Node.hpp"
 #include "NodeData.hpp"
-#include "Entity.h"
+#include "LightEngine/Entity.h"
 
 struct Path
 {

@@ -1,8 +1,8 @@
-#include "Entity.h"
+#include "LightEngine/Entity.h"
 
-#include "GameManager.h"
-#include "Utils.h"
-#include "Debug.h"
+#include "LightEngine/GameManager.h"
+#include "LightEngine/Utils.h"
+#include "LightEngine/Debug.h"
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/CircleShape.hpp>

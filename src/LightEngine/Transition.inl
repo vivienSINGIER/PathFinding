@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Transition.h"
+#include "LightEngine/Transition.h"
 
-#include "Condition.h"
+#include "LightEngine/Condition.h"
 
 template<typename T>
 template<typename U>

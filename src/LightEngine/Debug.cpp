@@ -1,8 +1,8 @@
-#include "Debug.h"
+#include "LightEngine/Debug.h"
 
-#include "GameManager.h"
+#include "LightEngine/GameManager.h"
 
-//#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 
 #include <string>
 

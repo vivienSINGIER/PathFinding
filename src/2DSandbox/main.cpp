@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
-#include "GameManager.h"
+#include "LightEngine/GameManager.h"
 #include "Grid.h"
 
 #include <cstdlib>

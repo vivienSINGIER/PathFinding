@@ -1,6 +1,6 @@
-#include "StateMachine.h"
+#include "LightEngine/StateMachine.h"
 
-#include "Action.h"
+#include "LightEngine/Action.h"
 
 template<typename T>
 StateMachine<T>::StateMachine(T* owner, int stateCount)

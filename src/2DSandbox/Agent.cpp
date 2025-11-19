@@ -4,7 +4,7 @@
 #include "Agent.h"
 #include "Grid.h"
 #include "Utils.hpp"
-#include "Debug.h"
+#include "LightEngine/Debug.h"
 
 #define SPEED 80.0f
 

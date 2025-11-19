@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GameManager.h"
-#include "Scene.h"
+#include "LightEngine/GameManager.h"
+#include "LightEngine/Scene.h"
 
 template<typename T>
 void GameManager::LaunchScene()

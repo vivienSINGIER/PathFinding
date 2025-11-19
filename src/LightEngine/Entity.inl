@@ -1,6 +1,6 @@
-#include "Entity.h"
+#include "LightEngine/Entity.h"
 
-#include "GameManager.h"
+#include "LightEngine/GameManager.h"
 
 template<typename T>
 T* Entity::GetScene() const

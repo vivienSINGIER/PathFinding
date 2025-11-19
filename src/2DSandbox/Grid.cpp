@@ -7,7 +7,7 @@
 #include <queue>
 
 #include "Utils.hpp"
-#include "Debug.h"
+#include "LightEngine/Debug.h"
 #include "GridConfig.h"
 #include "Agent.h"
 #include "SFML/Graphics.hpp"
@@ -546,7 +546,7 @@ void Grid::ToggleWalkable()
 
 void Grid::SaveMap()
 {
-    std::string filePath = "../../../res/Map";
+    std::string filePath = "/../../res/Map";
     filePath.append(std::to_string(m_gridConfigIndex));
     filePath.append(".txt");
 

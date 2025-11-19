@@ -16,7 +16,7 @@ std::vector<std::vector<char>> GridConfig::LoadConfig(int index)
 {
 	std::vector<std::vector<char>> config;
  
- 	std::string filePath = "../../../res/Map";
+ 	std::string filePath = "../../res/Map";
  	filePath.append(std::to_string(index));
  	filePath.append(".txt");
  

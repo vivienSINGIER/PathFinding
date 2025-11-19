@@ -1,8 +1,7 @@
-#include "GameManager.h"
-#include "GameManager.h"
+#include "LightEngine/GameManager.h"
 
-#include "Entity.h"
-#include "Debug.h"
+#include "LightEngine/Entity.h"
+#include "LightEngine/Debug.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
