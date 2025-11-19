@@ -1,5 +1,5 @@
 #pragma once
-#include <LightEngine\Scene.h>
+#include <3DLightEngine/Scene.h>
 
 class Entity;
 

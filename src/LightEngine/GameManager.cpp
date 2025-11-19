@@ -49,19 +49,6 @@ GameManager::~GameManager()
 	}
 }
 
-void GameManager::CreateWindow(unsigned int width, unsigned int height, const char* title, int fpsLimit, sf::Color clearColor)
-{
-	_ASSERT(mpWindow == nullptr);
-
-	mpWindow = new sf::RenderWindow(sf::VideoMode(width, height), title);
-	mpWindow->setFramerateLimit(fpsLimit);
-
-	mWindowWidth = width;
-	mWindowHeight = height;
-
-	mClearColor = clearColor;
-}
-
 void GameManager::Run()
 {
 	if (mpWindow == nullptr) 
@@ -71,7 +58,7 @@ void GameManager::Run()
 	}
 
 	//#TODO : Load somewhere else
-	bool fontLoaded = mFont.loadFromFile("../../../res/Hack-Regular.ttf");
+	bool fontLoaded = mFont.loadFromFile("../../res/Hack-Regular.ttf");
 	_ASSERT(fontLoaded);
 
 	_ASSERT(mpScene != nullptr);
