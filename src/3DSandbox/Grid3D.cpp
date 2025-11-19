@@ -25,7 +25,7 @@ Node<Tile>* Grid3D::GetNode(Position const& pos)
     return nullptr;
 }
 
-Node<Tile>* Grid3D::GetNode(gce::Vector2i8 const& pos)
+Node<Tile>* Grid3D::GetNode(gce::Vector2i32 const& pos)
 {
     for (int i = 0; i < m_vNodes.size(); i++)
     {
@@ -257,7 +257,7 @@ void Grid3D::Draw()
         agent->DrawPaths();
 }
 
-//void Grid3D::CreateAgent(gce::Vector2i8 mousePos)
+//void Grid3D::CreateAgent(gce::Vector2i32 mousePos)
 //{
 //    sf::Vector2i pos = GetTilePosition(mousePos);
 //
@@ -323,9 +323,9 @@ Node<Tile>* Grid3D::AStar(Node<Tile>* startNode, Node<Tile>* endNode, Agent3D* p
     return nullptr;
 }
 
-gce::Vector2i8 Grid3D::GetTilePosition(gce::Vector3f32 worldPos)
+gce::Vector2i32 Grid3D::GetTilePosition(gce::Vector3f32 worldPos)
 {
-    gce::Vector2i8 pos = { (int8)(worldPos.x - m_anchorPoint.x), (int8)(worldPos.y - m_anchorPoint.y) };
+    gce::Vector2i32 pos = { (int8)(worldPos.x - m_anchorPoint.x), (int8)(worldPos.y - m_anchorPoint.y) };
     if (pos.x < 0) pos.x -= 50;
     if (pos.y < 0) pos.y -= 50;
     pos /= 50;
@@ -333,7 +333,7 @@ gce::Vector2i8 Grid3D::GetTilePosition(gce::Vector3f32 worldPos)
     return pos;
 }
 
-gce::Vector3f32 Grid3D::GetWorldPosition(gce::Vector2i8 gridPos)
+gce::Vector3f32 Grid3D::GetWorldPosition(gce::Vector2i32 gridPos)
 {
     return { m_anchorPoint.x + gridPos.x * 50 + 25, m_anchorPoint.y + gridPos.y * 50 + 25, m_anchorPoint.z * 50 + 25 };
 }
@@ -345,7 +345,7 @@ void Grid3D::CalculateNodes()
     int WIDTH = m_vData[0].size();
     int HEIGHT = m_vData.size();
 
-    m_gridSize = gce::Vector2i8(WIDTH, HEIGHT) ;
+    m_gridSize = gce::Vector2i32(WIDTH, HEIGHT) ;
 
     for (int i = 0; i < HEIGHT; i++)
     {
@@ -387,10 +387,10 @@ void Grid3D::CalculateNodes()
 
 //Node<Tile>* Grid3D::TrySelectedTile(int x, int y)
 //{
-//    gce::Vector2i8 pos = GetTilePosition({ x, y });
+//    gce::Vector2i32 pos = GetTilePosition({ x, y });
 //
-//    gce::Vector2i8 min = { m_vData[0][0].position.x - 1, m_vData[0][0].position.y - 1 };
-//    gce::Vector2i8 max = { m_vData.back().back().position.x + 1, m_vData.back().back().position.y + 1 };
+//    gce::Vector2i32 min = { m_vData[0][0].position.x - 1, m_vData[0][0].position.y - 1 };
+//    gce::Vector2i32 max = { m_vData.back().back().position.x + 1, m_vData.back().back().position.y + 1 };
 //
 //    if (pos.x < min.x || pos.y < min.y) return nullptr;
 //    if (pos.x > max.x || pos.y > max.y) return nullptr;
@@ -461,7 +461,7 @@ std::vector<Node<Tile>*> Grid3D::GetTouchingTiles(Agent3D* pAgent)
 //    }
 //}
 
-void Grid3D::AddTile(gce::Vector2i8 pos)
+void Grid3D::AddTile(gce::Vector2i32 pos)
 {
     if (pos.y < m_vData[0][0].position.y || pos.y > m_vData.back()[0].position.y)
     {

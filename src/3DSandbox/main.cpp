@@ -1,6 +1,7 @@
 #include "main.h"
 #include <3DLightEngine/GameManager.h>
 #include "TestScene.h"
+#include "3DSandbox/Grid3D.h"
 
 int main()
 {
@@ -8,7 +9,7 @@ int main()
 
 	pInstance->Init(1280, 720);
 
-	pInstance->LaunchScene<TestScene>();
+	pInstance->LaunchScene<Grid3D>();
 
 	return 0;
 }

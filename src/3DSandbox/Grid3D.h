@@ -17,9 +17,9 @@ class Grid3D : public Scene
 {
 public:
     Node<Tile>* GetNode(Position const& pos);
-    Node<Tile>* GetNode(gce::Vector2i8 const& pos);
-    static gce::Vector2i8 GetTilePosition(gce::Vector3f32 worldPos);
-    static gce::Vector3f32 GetWorldPosition(gce::Vector2i8 gridPos);
+    Node<Tile>* GetNode(gce::Vector2i32 const& pos);
+    static gce::Vector2i32 GetTilePosition(gce::Vector3f32 worldPos);
+    static gce::Vector3f32 GetWorldPosition(gce::Vector2i32 gridPos);
 
     void OnInitialize() override;
     void OnUpdate() override;
@@ -29,13 +29,13 @@ public:
     void Reset();
     void Draw();
 
-    //void CreateAgent(gce::Vector2i8 mousePos);
+    //void CreateAgent(gce::Vector2i32 mousePos);
 
     Node<Tile>* AStar(Node<Tile>* startNode, Node<Tile>* endNode, Agent3D* pAgent);
 
 private:
-    gce::Vector2i8 m_gridSize;
-    gce::Vector2i8 m_gridCenter;
+    gce::Vector2i32 m_gridSize;
+    gce::Vector2i32 m_gridCenter;
     static gce::Vector3f32 m_anchorPoint;
 
     int m_gridConfigIndex = 1;
@@ -52,7 +52,7 @@ private:
     Node<Tile>* TrySelectedTile(int x, int y);
     std::vector<Node<Tile>*> GetTouchingTiles(Agent3D* pAgent);
     void TrySelectedAgent(int x, int y);
-    void AddTile(gce::Vector2i8 pos);
+    void AddTile(gce::Vector2i32 pos);
     void ToggleWalkable();
 
     void SaveMap();

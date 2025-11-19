@@ -24,12 +24,12 @@ void Agent3D::OnUpdate()
 	Grid3D* grid = GetScene<Grid3D>();
 	if (grid == nullptr) return;
 
-	gce::Vector2i8 oldPos = m_tilePosition;
+	gce::Vector2i32 oldPos = m_tilePosition;
 
 	Node<Tile>* nextNode = GetNextNode();
 	if (nextNode != nullptr)
 	{
-		gce::Vector2i8 nextPos = { (int8)nextNode->data->position.x, (int8)nextNode->data->position.y };
+		gce::Vector2i32 nextPos = { (int8)nextNode->data->position.x, (int8)nextNode->data->position.y };
 		if (nextPos != m_tilePosition)
 			m_nextPos = nextPos;
 	}
@@ -71,7 +71,7 @@ void Agent3D::SetTarget()
 		{
 			if (currentPath.detourIndex < currentPath.vDetour.size())
 			{
-				gce::Vector2i8 p = { currentPath.vDetour[currentPath.detourIndex].x, currentPath.vDetour[currentPath.detourIndex].y };
+				gce::Vector2i32 p = { currentPath.vDetour[currentPath.detourIndex].x, currentPath.vDetour[currentPath.detourIndex].y };
 				gce::Vector3f32 wP = Grid3D::GetWorldPosition(p);
 				GoToPosition(wP.x, wP.y, wP.z, SPEED);
 			}
@@ -86,7 +86,7 @@ void Agent3D::SetTarget()
 		}
 		else
 		{
-			gce::Vector2i8 p = { currentPath.vPositions[currentPath.index].x, currentPath.vPositions[currentPath.index].y };
+			gce::Vector2i32 p = { currentPath.vPositions[currentPath.index].x, currentPath.vPositions[currentPath.index].y };
 			gce::Vector3f32 wP = Grid3D::GetWorldPosition(p);
 			GoToPosition(wP.x, wP.y, wP.z, SPEED);
 			std::cout << currentPath.index << std::endl;
@@ -103,11 +103,6 @@ void Agent3D::SetTarget()
 
 void Agent3D::CheckPathAvailable()
 {
-	gce::Vector2i16 test1 = {0,0};
-	gce::Vector2i16 test2 = { 0,0 };
-
-	gce::Vector2i16 test3 = test1 + test2;
-
 	if (m_vPaths.empty()) return;
 	Path& currentPath = m_vPaths.front();
 	if (currentPath.index == 0) return;
@@ -117,11 +112,11 @@ void Agent3D::CheckPathAvailable()
 	Node<Tile>* node = grid->GetNode(m_tilePosition);
 	if (node == nullptr) return;
 
-	gce::Vector2i8 currPos = m_tilePosition;
+	gce::Vector2i32 currPos = m_tilePosition;
 	std::vector<Node<Tile>*> section;
 	Node<Tile>* temp = node;
 
-	std::vector<gce::Vector2i8> positions = currentPath.vPositions;
+	std::vector<gce::Vector2i32> positions = currentPath.vPositions;
 	int startIndex = currentPath.index - 1;
 	int endIndex = currentPath.index;
 
@@ -133,14 +128,14 @@ void Agent3D::CheckPathAvailable()
 		if (startIndex < 0) return;
 	}
 
-	gce::Vector2i8 intDirection = { 0,0 }; // positions[endIndex] - positions[startIndex];
+	gce::Vector2i32 intDirection =  positions[endIndex] - positions[startIndex];
 	gce::Clamp(intDirection.x, -1, 1);
 	gce::Clamp(intDirection.y, -1, 1);
 
 	while (currPos != positions[endIndex])
 	{
 		section.push_back(temp);
-		currPos = { 0,0 }; //currPos + intDirection;
+		currPos = currPos + intDirection;
 		temp = grid->GetNode(currPos);
 	}
 
@@ -150,7 +145,7 @@ void Agent3D::CheckPathAvailable()
 			m_vPaths.clear();
 		if (currentPath.isLoop == false)
 		{
-			gce::Vector2i8 vPos = m_tilePosition;
+			gce::Vector2i32 vPos = m_tilePosition;
 			Path p = GetPath(vPos, m_vPaths.front().vPositions.back());
 			m_vPaths.erase(m_vPaths.begin());
 			m_vPaths.insert(m_vPaths.begin(), p);
@@ -189,7 +184,7 @@ void Agent3D::CheckPathAvailable()
 				break;
 			}
 
-			gce::Vector2i8 vPos = { (int8)section[index]->data->position.x, (int8)section[index]->data->position.y };
+			gce::Vector2i32 vPos = { (int8)section[index]->data->position.x, (int8)section[index]->data->position.y };
 			Path p = GetPath(vPos, m_vPaths.front().vPositions.back());
 			m_vPaths.erase(m_vPaths.begin());
 			m_vPaths.insert(m_vPaths.begin(), p);
@@ -207,7 +202,7 @@ Node<Tile>* Agent3D::GetNextNode()
 
 	gce::Vector3f32 worldPos = { GetPosition() };
 	gce::Vector3f32 nextTilePos = worldPos + gce::Vector3f32(mDirection.x * 25, mDirection.y * 25, mDirection.z * 25);
-	gce::Vector2i8 tileP = Grid3D::GetTilePosition(nextTilePos);
+	gce::Vector2i32 tileP = Grid3D::GetTilePosition(nextTilePos);
 
 	Node<Tile>* nextNode = grid->GetNode(tileP);
 	if (node == nextNode) return nullptr;
@@ -245,7 +240,7 @@ void Agent3D::CheckPathOccupied()
 	{
 		if (currentPath.isLoop == false)
 		{
-			gce::Vector2i8 vPos = m_tilePosition;
+			gce::Vector2i32 vPos = m_tilePosition;
 			Path p = GetPath(vPos, m_vPaths.front().vPositions.back());
 			m_vPaths.erase(m_vPaths.begin());
 			m_vPaths.insert(m_vPaths.begin(), p);
@@ -270,7 +265,7 @@ void Agent3D::ResetPaths()
 	SetTarget();
 }
 
-void Agent3D::AddPath(gce::Vector2i8 vector2)
+void Agent3D::AddPath(gce::Vector2i32 vector2)
 {
 	if (m_vPaths.empty() == false)
 	{
@@ -279,7 +274,7 @@ void Agent3D::AddPath(gce::Vector2i8 vector2)
 			return;
 	}
 
-	gce::Vector2i8 start = m_tilePosition;
+	gce::Vector2i32 start = m_tilePosition;
 	if (m_vPaths.empty() == false)
 		start = m_vPaths.back().vPositions.back();
 
@@ -295,10 +290,10 @@ void Agent3D::SetDetour(int startIndex, int endIndex)
 
 	if (startIndex + 1 >= currentPath.vPositions.size()) return;
 
-	gce::Vector2i8 start = m_tilePosition;
+	gce::Vector2i32 start = m_tilePosition;
 
 	endIndex = startIndex + 1;
-	gce::Vector2i8 end = currentPath.vPositions[endIndex];
+	gce::Vector2i32 end = currentPath.vPositions[endIndex];
 	Grid3D* grid = GetScene<Grid3D>();
 	Node<Tile>* endNode = grid->GetNode(end);
 	while (endNode != nullptr && endNode->data->isWalkable == false && end != currentPath.vPositions.back())
@@ -329,7 +324,7 @@ void Agent3D::SetDetour(int startIndex, int endIndex)
 	currentPath.detourEnd = endIndex;
 }
 
-Path Agent3D::GetPath(gce::Vector2i8 start, gce::Vector2i8 end)
+Path Agent3D::GetPath(gce::Vector2i32 start, gce::Vector2i32 end)
 {
 	Grid3D* grid = GetScene<Grid3D>();
 	Node<Tile>* nEnd = grid->GetNode(end);
@@ -347,25 +342,25 @@ Path Agent3D::GetPath(gce::Vector2i8 start, gce::Vector2i8 end)
 
 	while (nResult != nullptr)
 	{
-		gce::Vector2i8 p = { (int8)nResult->data->position.x, (int8)nResult->data->position.y };
+		gce::Vector2i32 p = { (int8)nResult->data->position.x, (int8)nResult->data->position.y };
 		path.vPositions.insert(path.vPositions.begin(), p);
 		nResult = nResult->pCameFrom;
 	}
 
 	if (path.vPositions.size() > 1)
 	{
-		gce::Vector2i8 dir = { 0, 0 };
+		gce::Vector2i32 dir = { 0, 0 };
 		int i = 1;
 		while (i < path.vPositions.size())
 		{
-			gce::Vector2i8 newDir = { 0,0 }; //path.vPositions[i] - path.vPositions[i - 1];
+			gce::Vector2i32 newDir = path.vPositions[i] - path.vPositions[i - 1];
 			newDir.SelfNormalize();
 			while (newDir == dir && i < path.vPositions.size())
 			{
 				path.vPositions.erase(path.vPositions.begin() + i - 1);
 				if (i < path.vPositions.size())
 				{
-					newDir = { 0,0 }; //path.vPositions[i] - path.vPositions[i - 1];
+					newDir = path.vPositions[i] - path.vPositions[i - 1];
 					newDir.SelfNormalize();
 				}
 			}
@@ -397,8 +392,8 @@ void Agent3D::DrawSinglePath(Path& path, gce::Color color)
 
 	for (int i = 0; i < currentPath.vPositions.size() - 1; i++)
 	{
-		gce::Vector2i8 p1 = { currentPath.vPositions[i].x, currentPath.vPositions[i].y };
-		gce::Vector2i8 p2 = { currentPath.vPositions[i + 1].x, currentPath.vPositions[i + 1].y };
+		gce::Vector2i32 p1 = { currentPath.vPositions[i].x, currentPath.vPositions[i].y };
+		gce::Vector2i32 p2 = { currentPath.vPositions[i + 1].x, currentPath.vPositions[i + 1].y };
 
 		gce::Vector3f32 wP1 = Grid3D::GetWorldPosition(p1);
 		gce::Vector3f32 wP2 = Grid3D::GetWorldPosition(p2);
@@ -407,7 +402,7 @@ void Agent3D::DrawSinglePath(Path& path, gce::Color color)
 		//Debug::DrawCircle(wP1.x, wP1.y, 5.f, gce::Color::Magenta);
 		//Debug::DrawCircle(wP2.x, wP2.y, 5.f, gce::Color::Magenta);
 	}
-	gce::Vector2i8 p = { currentPath.vPositions.back().x, currentPath.vPositions.back().y };
+	gce::Vector2i32 p = { currentPath.vPositions.back().x, currentPath.vPositions.back().y };
 	gce::Vector3f32 wP = Grid3D::GetWorldPosition(p);
 	//Debug::DrawCircle(wP.x, wP.y, 5.f, gce::Color::Magenta);
 
@@ -415,8 +410,8 @@ void Agent3D::DrawSinglePath(Path& path, gce::Color color)
 
 	for (int i = 0; i < currentPath.vDetour.size() - 1; i++)
 	{
-		gce::Vector2i8 p1 = { currentPath.vDetour[i].x, currentPath.vDetour[i].y };
-		gce::Vector2i8 p2 = { currentPath.vDetour[i + 1].x, currentPath.vDetour[i + 1].y };
+		gce::Vector2i32 p1 = { currentPath.vDetour[i].x, currentPath.vDetour[i].y };
+		gce::Vector2i32 p2 = { currentPath.vDetour[i + 1].x, currentPath.vDetour[i + 1].y };
 
 		gce::Vector3f32 wP1 = Grid3D::GetWorldPosition(p1);
 		gce::Vector3f32 wP2 = Grid3D::GetWorldPosition(p2);
@@ -430,7 +425,7 @@ void Agent3D::DrawSinglePath(Path& path, gce::Color color)
 	//Debug::DrawCircle(wP.x, wP.y, 5.f, gce::Color::Magenta);
 }
 
-void Agent3D::PreviewPath(gce::Vector2i8 vector)
+void Agent3D::PreviewPath(gce::Vector2i32 vector)
 {
 	Path p = GetPath(m_tilePosition, vector);
 	DrawSinglePath(p, gce::Color::White);
