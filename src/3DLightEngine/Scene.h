@@ -17,6 +17,7 @@ protected:
 	virtual void OnInitialize() = 0;
 	/*virtual void OnEvent(const sf::Event& event) = 0;*/
 	virtual void OnUpdate() = 0;
+	virtual void HandleInput() = 0;
 
 public:
 	template<typename T>

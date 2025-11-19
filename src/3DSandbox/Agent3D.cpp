@@ -29,7 +29,7 @@ void Agent3D::OnUpdate()
 	Node<Tile>* nextNode = GetNextNode();
 	if (nextNode != nullptr)
 	{
-		gce::Vector2i32 nextPos = { (int8)nextNode->data->position.x, (int8)nextNode->data->position.y };
+		gce::Vector2i32 nextPos = { nextNode->data->position.x, nextNode->data->position.y };
 		if (nextPos != m_tilePosition)
 			m_nextPos = nextPos;
 	}

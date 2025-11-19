@@ -41,7 +41,7 @@ struct Position
         return *this;
     }
 
-    static std::vector<Position> GetNeighbours(Position const& pos, gce::Vector2i8 maxSize)
+    static std::vector<Position> GetNeighbours(Position const& pos, gce::Vector2i32 maxSize)
     {
         std::vector<Position> neighbours;
         for (int i = -1; i <= 1; i++)

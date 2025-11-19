@@ -6,10 +6,13 @@
 #include <fstream>
 #include <queue>
 
-#include "../3DLightEngine/Utils.h"
-#include "../3DLightEngine/Debug.h"
+#include "3DLightEngine/Utils.h"
+#include "3DLightEngine/Debug.h"
 #include "GridConfig3D.h"
 #include "Agent3D.h"
+#include "GC-simple-render/InputsMethods.h"
+
+#define BlockSize 2.5f
 
 gce::Vector3f32 Grid3D::m_anchorPoint = { 0, 0, 0 };
 
@@ -47,6 +50,10 @@ void Grid3D::OnUpdate()
     Draw();
     Reset();
 
+    m_pSelectedTile = TrySelectedTile(cursorPos.x, cursorPos.y);
+    if (m_vAgents.empty() == false)
+        m_pSelectedAgent = m_vAgents[m_selectedAgentIndex];
+    
     for (int i = 0; i < m_vNodes.size(); i++)
     {
         m_vNodes[i].data->pOccupyingAgent = nullptr;
@@ -82,6 +89,31 @@ void Grid3D::OnUpdate()
         }
     }
 
+}
+
+void Grid3D::HandleInput()
+{
+    if (GetKeyDown(Keyboard::LEFT))
+        cursorPos.x -= 1;
+    if (GetKeyDown(Keyboard::RIGHT))
+        cursorPos.x += 1;
+    if (GetKeyDown(Keyboard::UP))
+        cursorPos.y -= 1;
+    if (GetKeyDown(Keyboard::DOWN))
+        cursorPos.y += 1;
+
+    if (GetKeyDown(Keyboard::PAGE_UP) || GetKeyDown(Keyboard::I))
+        m_selectedAgentIndex += 1;
+    if (GetKeyDown(Keyboard::PAGE_DOWN) || GetKeyDown(Keyboard::U))
+        m_selectedAgentIndex -= 1;
+    if (m_vAgents.empty() == false)
+        m_selectedAgentIndex %= m_vAgents.size();   
+    
+    if (GetKeyDown(Keyboard::A))
+        CreateAgent();
+    
+    if (GetKeyDown(Keyboard::B))
+        ToggleWalkable();
 }
 
 //void Grid3D::OnEvent(const sf::Event& event)
@@ -211,9 +243,12 @@ void Grid3D::Init(const int configIndex)
 
     CalculateNodes();
 
-    float offsetX = GetWindowWidth() / 2 - m_gridSize.x / 2;
-    float offsetY = GetWindowHeight() / 2 - m_gridSize.y / 2;
+    float offsetX = - m_gridSize.x * BlockSize * 0.5f + BlockSize * 0.5f;
+    float offsetY = m_gridSize.y * BlockSize * 0.5f + BlockSize * 0.5f;
     Grid3D::m_anchorPoint = gce::Vector3f32(offsetX, 0.0f, offsetY);
+
+    m_pSelectedTile = GetNode(Position(0, 0));
+    cursorPos = gce::Vector2i32(0, 0);
 }
 
 void Grid3D::Reset()
@@ -234,52 +269,42 @@ void Grid3D::Draw()
         Node<Tile>* n = &m_vNodes[i];
         Position p = n->data->position;
 
-        gce::Color color = gce::Color::Green;
+        gce::Vector3f32 color = {0.0f, 1.0f, 0.0f};
         if (n->data->pOccupyingAgent != nullptr)
-            color = gce::Color::White;
+            color = {1.0f, 1.0f, 1.0f};
 
         if (n == m_pSelectedTile)
-            color = gce::Color::Blue;
+            color = {0.0f, 0.0f, 1.0f};
         if (n == m_pSelectedTile && n->data->isWalkable == false)
-            color = gce::Color::Red;
+            color = {1.0f, 0.0f, 0.0f};
 
-    //    if (n->data->isWalkable || n == m_pSelectedTile)
-    //        Debug::DrawFilledRectangle(m_anchorPoint.x + p.x * 50.f, m_anchorPoint.y + p.y * 50.f, 50.0f, 50.0f, color);
-    }
-
-    if (m_pSelectedAgent != nullptr)
-    {
-        gce::Vector3f32 position = m_pSelectedAgent->GetPosition();
-        /*Debug::DrawCircle(position.x, position.y, 10, sf::Color::Red);*/
+    if (n->data->isWalkable || n == m_pSelectedTile)
+        Debug::DrawCube({m_anchorPoint.x + p.x * BlockSize, 0.0f,m_anchorPoint.z - p.y * BlockSize},
+            {BlockSize - 0.2f, BlockSize - 0.2f, BlockSize - 0.2f}, color);
     }
 
     for (Agent3D* agent : m_vAgents)
         agent->DrawPaths();
 }
 
-//void Grid3D::CreateAgent(gce::Vector2i32 mousePos)
-//{
-//    sf::Vector2i pos = GetTilePosition(mousePos);
-//
-//    sf::Vector2i min = { m_vData[0][0].position.x, m_vData[0][0].position.y };
-//    sf::Vector2i max = { m_vData.back().back().position.x, m_vData.back().back().position.y };
-//
-//    if (pos.x < min.x || pos.y < min.y) return;
-//    if (pos.x > max.x || pos.y > max.y) return;
-//
-//    Node<Tile>* tempNode = GetNode(pos);
-//    if (tempNode == nullptr)
-//        return;
-//    if (tempNode->data->isWalkable == false || tempNode->data->pOccupyingAgent != nullptr)
-//        return;
-//
-//    pos *= 50;
-//
-//    Agent* tempAgent = CreateEntity<Agent>(20.f, sf::Color::Blue);
-//    tempAgent->SetPosition(pos.x + 25.f + m_anchorPoint.x, pos.y + 25.f + m_anchorPoint.y);
-//
-//    m_vAgents.push_back(tempAgent);
-//}
+void Grid3D::CreateAgent()
+{
+    if (m_pSelectedTile == nullptr)
+        return;
+    
+    gce::Vector2i32 pos = {m_pSelectedTile->data->position.x, m_pSelectedTile->data->position.y};
+    
+    Node<Tile>* tempNode = GetNode(pos);
+    if (tempNode == nullptr)
+        return;
+    if (tempNode->data->isWalkable == false || tempNode->data->pOccupyingAgent != nullptr)
+        return;
+
+    Agent3D* tempAgent = CreateEntity<Agent3D>(1.f, gce::Vector3f32(0.0f, 0.0f, 1.0f));
+    tempAgent->SetPosition(m_anchorPoint.x + pos.x * BlockSize, BlockSize * 0.5f, m_anchorPoint.z - pos.y * BlockSize);
+
+    m_vAgents.push_back(tempAgent);
+}
 
 Node<Tile>* Grid3D::AStar(Node<Tile>* startNode, Node<Tile>* endNode, Agent3D* pAgent)
 {
@@ -325,17 +350,19 @@ Node<Tile>* Grid3D::AStar(Node<Tile>* startNode, Node<Tile>* endNode, Agent3D* p
 
 gce::Vector2i32 Grid3D::GetTilePosition(gce::Vector3f32 worldPos)
 {
-    gce::Vector2i32 pos = { (int8)(worldPos.x - m_anchorPoint.x), (int8)(worldPos.y - m_anchorPoint.y) };
-    if (pos.x < 0) pos.x -= 50;
-    if (pos.y < 0) pos.y -= 50;
-    pos /= 50;
+    gce::Vector2f32 pos = { worldPos.x - m_anchorPoint.x, worldPos.z + m_anchorPoint.z };
+    if (pos.x < 0) pos.x -= BlockSize;
+    if (pos.y < 0) pos.y -= BlockSize;
+    pos /= BlockSize;
 
-    return pos;
+    return gce::Vector2i32(pos);
 }
 
 gce::Vector3f32 Grid3D::GetWorldPosition(gce::Vector2i32 gridPos)
 {
-    return { m_anchorPoint.x + gridPos.x * 50 + 25, m_anchorPoint.y + gridPos.y * 50 + 25, m_anchorPoint.z * 50 + 25 };
+    return { m_anchorPoint.x + gridPos.x * BlockSize + BlockSize * 0.5f,
+        0.0f,
+        m_anchorPoint.z + gridPos.y * BlockSize + BlockSize * 0.5f };
 }
 
 void Grid3D::CalculateNodes()
@@ -361,7 +388,7 @@ void Grid3D::CalculateNodes()
     {
         Node<Tile>* n = &m_vNodes[i];
         n->vNeighbours.clear();
-        std::vector<Position> neighbours = Position::GetNeighbours(n->data->position, { (int8)(m_vData[0].size() - 1), (int8)(m_vData.size() - 1) });
+        std::vector<Position> neighbours = Position::GetNeighbours(n->data->position, { (int32)(m_vData[0].size() - 1), (int32)(m_vData.size() - 1) });
 
         for (int i = 0; i < neighbours.size(); i++)
         {
@@ -385,28 +412,28 @@ void Grid3D::CalculateNodes()
     }
 }
 
-//Node<Tile>* Grid3D::TrySelectedTile(int x, int y)
-//{
-//    gce::Vector2i32 pos = GetTilePosition({ x, y });
-//
-//    gce::Vector2i32 min = { m_vData[0][0].position.x - 1, m_vData[0][0].position.y - 1 };
-//    gce::Vector2i32 max = { m_vData.back().back().position.x + 1, m_vData.back().back().position.y + 1 };
-//
-//    if (pos.x < min.x || pos.y < min.y) return nullptr;
-//    if (pos.x > max.x || pos.y > max.y) return nullptr;
-//
-//    Node<Tile>* n = GetNode(pos);
-//
-//    if (n != nullptr) return n;
-//
-//    AddTile({ pos.x, pos.y });
-//
-//    n = GetNode(pos);
-//
-//    if (n == nullptr)
-//        int i = 0;
-//    return n;
-//}
+Node<Tile>* Grid3D::TrySelectedTile(int x, int y)
+{
+    gce::Vector2i32 pos = {x, y};
+
+    gce::Vector2i32 min = { m_vData[0][0].position.x - 1, m_vData[0][0].position.y - 1 };
+    gce::Vector2i32 max = { m_vData.back().back().position.x + 1, m_vData.back().back().position.y + 1 };
+
+    if (pos.x < min.x || pos.y < min.y) return nullptr;
+    if (pos.x > max.x || pos.y > max.y) return nullptr;
+
+    Node<Tile>* n = GetNode(pos);
+
+    if (n != nullptr) return n;
+
+    AddTile({ pos.x, pos.y });
+
+    n = GetNode(pos);
+
+    if (n == nullptr)
+        int i = 0;
+    return n;
+}
 
 std::vector<Node<Tile>*> Grid3D::GetTouchingTiles(Agent3D* pAgent)
 {
@@ -525,7 +552,7 @@ void Grid3D::ToggleWalkable()
     {
         Node<Tile>* n = m_pSelectedTile->vNeighbours[i];
         n->vNeighbours.clear();
-        std::vector<Position> neighbours = Position::GetNeighbours(n->data->position, { (int8)(m_vData[0].size() - 1), (int8)(m_vData.size() - 1) });
+        std::vector<Position> neighbours = Position::GetNeighbours(n->data->position, { (int32)(m_vData[0].size() - 1), (int32)(m_vData.size() - 1) });
 
         for (int i = 0; i < neighbours.size(); i++)
         {

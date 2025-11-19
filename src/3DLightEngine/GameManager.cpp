@@ -76,16 +76,8 @@ void GameManager::Run()
 
 void GameManager::HandleInput()
 {
-	//sf::Event event;
-	//while (mpWindow->pollEvent(event))
-	//{
-	//	if (event.type == sf::Event::Closed)
-	//	{
-	//		mpWindow->close();
-	//	}
-
-	//	mpScene->OnEvent(event);
-	//}
+	if (m_pScene == nullptr) return;
+	m_pScene->HandleInput();
 }
 
 void GameManager::Update()

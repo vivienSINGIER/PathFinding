@@ -1,7 +1,7 @@
 #ifndef GRID3D_H_INCLUDED
 #define GRID3D_H_INCLUDED
 
-#include "..\3DLightEngine\Scene.h"
+#include "3DLightEngine\Scene.h"
 
 #include <vector>
 
@@ -23,13 +23,14 @@ public:
 
     void OnInitialize() override;
     void OnUpdate() override;
+    void HandleInput() override;
     //void OnEvent(const sf::Event& event) override;
 
     void Init(const int configIndex);
     void Reset();
     void Draw();
 
-    //void CreateAgent(gce::Vector2i32 mousePos);
+    void CreateAgent();
 
     Node<Tile>* AStar(Node<Tile>* startNode, Node<Tile>* endNode, Agent3D* pAgent);
 
@@ -37,6 +38,8 @@ private:
     gce::Vector2i32 m_gridSize;
     gce::Vector2i32 m_gridCenter;
     static gce::Vector3f32 m_anchorPoint;
+
+    gce::Vector2i32 cursorPos;
 
     int m_gridConfigIndex = 1;
 
@@ -46,6 +49,7 @@ private:
 
     Node<Tile>* m_pSelectedTile = nullptr;
     Agent3D* m_pSelectedAgent = nullptr;
+    int m_selectedAgentIndex = 0;
 
     void CalculateNodes();
 
