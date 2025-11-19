@@ -1,5 +1,7 @@
 #include "TestScene.h"
 #include <Maths/Vector3.h>
+
+#include "Debug.h"
 #include "GC-simple-render/InputsMethods.h"
 
 void TestScene::OnInitialize()
@@ -15,6 +17,9 @@ void TestScene::OnInitialize()
 
 void TestScene::OnUpdate()
 {
+	gce::Vector2i8 startPos = {0, -0};
+	
+	
 	if (GetKeyDown(Keyboard::ENTER))
 	{
 		m_pEntity1->GoToPosition(-m_pEntity1->GetPosition().x, 0.0f, 0.0f, 5.0f);

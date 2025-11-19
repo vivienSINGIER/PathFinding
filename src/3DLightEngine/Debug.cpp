@@ -175,7 +175,7 @@ void Debug::DrawLine(gce::Vector3f32 const& start, gce::Vector3f32 const& end, g
 	cyl->SetRotation({yaw, pitch, 0.0f});
 }
 
-void Debug::DrawCube(gce::Vector3f32 const& start, gce::Vector3f32 const& end, gce::Vector3f32 const& color)
+void Debug::DrawCube(gce::Vector3f32 const& center, gce::Vector3f32 const& size, gce::Vector3f32 const& color)
 {
 	int index = Get()->GetFirstAvailableCube();
 	if (index == -1) return;
@@ -185,11 +185,8 @@ void Debug::DrawCube(gce::Vector3f32 const& start, gce::Vector3f32 const& end, g
 	if (cube == nullptr) return;
 	cube->SetColor(color);
 	geo.isUsed = true;
-	
-	gce::Vector3f32 size = end - start;
-	gce::Vector3f32 mid = start + size * 0.5f;
 
-	cube->SetPosition(mid);
+	cube->SetPosition(center);
 	cube->SetScale({abs(size.x), abs(size.y), abs(size.z)});
 }
 

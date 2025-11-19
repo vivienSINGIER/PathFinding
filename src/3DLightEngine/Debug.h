@@ -51,7 +51,7 @@ public:
 	void Init();
 
 	static void DrawLine(gce::Vector3f32 const& start, gce::Vector3f32 const& end, gce::Vector3f32 const& color);
-	static void DrawCube(gce::Vector3f32 const& start, gce::Vector3f32 const& end, gce::Vector3f32 const& color);
+	static void DrawCube(gce::Vector3f32 const& center, gce::Vector3f32 const& size, gce::Vector3f32 const& color);
 	static void DrawSphere(gce::Vector3f32 const& center, float radius, gce::Vector3f32 const& color);
 	static void DrawText(gce::Vector3f32 const& pos, const std::string& text, gce::Vector3f32 const& color) {}
 
