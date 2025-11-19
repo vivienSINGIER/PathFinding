@@ -1,0 +1,163 @@
+{
+    "projects": {
+        "2DSandbox": {
+            "additionalDependencies": [
+                "sfml-graphics-s-d.lib",
+                "sfml-window-s-d.lib",
+                "sfml-audio-s-d.lib",
+                "sfml-system-s-d.lib",
+                "opengl32.lib",
+                "glu32.lib",
+                "gdi32.lib",
+                "winmm.lib",
+                "dwmapi.lib",
+                "freetype.lib"
+            ],
+            "additionalIncludeDirectories": [
+                "$(SolutionDir)../vendor/SFML-2.5.1/include",
+                "$(SolutionDir)../src/LightEngine"
+            ],
+            "additionalLibraryDirectories": [
+                "$(SolutionDir)../vendor/SFML-2.5.1/lib",
+                "$(SolutionDir)../ide/vs/LightEngine/Build/Debug"
+            ],
+            "dependencies": [
+                "LightEngine"
+            ],
+            "dependents": [],
+            "guid": "16661F53-199C-5546-25AA-618141615844",
+            "lib": false,
+            "pch": false,
+            "preprocessorDefinitions": [
+                "_DEBUG",
+                "_CONSOLE",
+                "SFML_STATIC"
+            ],
+            "vcpkg": false,
+            "window": false
+        },
+        "3DLightEngine": {
+            "additionalDependencies": [
+                "winmm.lib"
+            ],
+            "additionalIncludeDirectories": [
+                "$(SolutionDir)../vendor/GCRender/includes/",
+                "$(SolutionDir)../vendor/GCRender/includes/Core/",
+                "$(SolutionDir)../vendor/GCRender/includes/Render/"
+            ],
+            "additionalLibraryDirectories": [],
+            "dependencies": [
+                "GC-simple-render"
+            ],
+            "dependents": [
+                "3DSandbox"
+            ],
+            "guid": "4D3D30FA-7215-53C0-41FE-76F56CAC52A1",
+            "lib": true,
+            "pch": false,
+            "preprocessorDefinitions": [],
+            "vcpkg": false,
+            "window": false
+        },
+        "3DSandbox": {
+            "additionalDependencies": [],
+            "additionalIncludeDirectories": [
+                "$(SolutionDir)../vendor/GCRender/includes/",
+                "$(SolutionDir)../vendor/GCRender/includes/Core/",
+                "$(SolutionDir)../vendor/GCRender/includes/Render/"
+            ],
+            "additionalLibraryDirectories": [],
+            "dependencies": [
+                "3DLightEngine"
+            ],
+            "dependents": [],
+            "guid": "51C14002-70E1-4ECD-791D-2CE33C9C02C2",
+            "lib": false,
+            "pch": false,
+            "preprocessorDefinitions": [],
+            "vcpkg": false,
+            "window": false
+        },
+        "GC-simple-render": {
+            "additionalDependencies": [
+                "GCE.lib"
+            ],
+            "additionalIncludeDirectories": [
+                "$(SolutionDir)../vendor/GCRender/includes/",
+                "$(SolutionDir)../vendor/GCRender/includes/Core/",
+                "$(SolutionDir)../vendor/GCRender/includes/Render/"
+            ],
+            "additionalLibraryDirectories": [
+                "$(SolutionDir)../vendor/GCRender/lib/"
+            ],
+            "dependencies": [],
+            "dependents": [
+                "Sandbox",
+                "3DLightEngine"
+            ],
+            "guid": "38F75103-529A-3190-66A6-19F06F252E3F",
+            "lib": true,
+            "pch": true,
+            "preprocessorDefinitions": [],
+            "vcpkg": false,
+            "window": false
+        },
+        "LightEngine": {
+            "additionalDependencies": [
+                "sfml-graphics-s-d.lib",
+                "sfml-window-s-d.lib",
+                "sfml-audio-s-d.lib",
+                "sfml-system-s-d.lib",
+                "opengl32.lib",
+                "glu32.lib",
+                "gdi32.lib",
+                "winmm.lib",
+                "dwmapi.lib",
+                "freetype.lib"
+            ],
+            "additionalIncludeDirectories": [
+                "$(SolutionDir)../vendor/SFML-2.5.1/include"
+            ],
+            "additionalLibraryDirectories": [
+                "$(SolutionDir)../vendor/SFML-2.5.1/lib"
+            ],
+            "dependencies": [],
+            "dependents": [
+                "2DSandbox"
+            ],
+            "guid": "09123BFE-3F80-2213-2D40-44792042057E",
+            "lib": true,
+            "pch": false,
+            "preprocessorDefinitions": [
+                "_DEBUG",
+                "_CONSOLE",
+                "SFML_STATIC"
+            ],
+            "vcpkg": false,
+            "window": false
+        },
+        "Sandbox": {
+            "additionalDependencies": [],
+            "additionalIncludeDirectories": [
+                "$(SolutionDir)../vendor/GCRender/includes/",
+                "$(SolutionDir)../vendor/GCRender/includes/Core/",
+                "$(SolutionDir)../vendor/GCRender/includes/Render/"
+            ],
+            "additionalLibraryDirectories": [],
+            "dependencies": [
+                "GC-simple-render"
+            ],
+            "dependents": [],
+            "guid": "6D3365EA-0685-67A6-11D8-272C75644253",
+            "lib": false,
+            "pch": true,
+            "preprocessorDefinitions": [],
+            "vcpkg": false,
+            "window": false
+        }
+    },
+    "solution_guid": "6B045A50-69CF-1E1C-2808-683D565F65A7",
+    "solution_name": "PathFinding",
+    "startup_project": "Sandbox",
+    "version": "1.17.4"
+}

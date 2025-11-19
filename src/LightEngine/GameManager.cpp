@@ -1,4 +1,5 @@
 #include "GameManager.h"
+#include "GameManager.h"
 
 #include "Entity.h"
 #include "Debug.h"
@@ -24,17 +25,6 @@ GameManager* GameManager::Get()
 	return &mInstance;
 }
 
-GameManager::~GameManager()
-{
-	delete mpWindow;
-	delete mpScene;
-
-	for (Entity* entity : mEntities)
-	{
-		delete entity;
-	}
-}
-
 void GameManager::CreateWindow(unsigned int width, unsigned int height, const char* title, int fpsLimit, sf::Color clearColor)
 {
 	_ASSERT(mpWindow == nullptr);
@@ -48,6 +38,17 @@ void GameManager::CreateWindow(unsigned int width, unsigned int height, const ch
 	mClearColor = clearColor;
 }
 
+GameManager::~GameManager()
+{
+	delete mpWindow;
+	delete mpScene;
+
+	for (Entity* entity : mEntities)
+	{
+		delete entity;
+	}
+}
+
 void GameManager::Run()
 {
 	if (mpWindow == nullptr) 
@@ -57,7 +58,7 @@ void GameManager::Run()
 	}
 
 	//#TODO : Load somewhere else
-	bool fontLoaded = mFont.loadFromFile("../../../res/Hack-Regular.ttf");
+	bool fontLoaded = mFont.loadFromFile("../../res/Hack-Regular.ttf");
 	_ASSERT(fontLoaded);
 
 	_ASSERT(mpScene != nullptr);

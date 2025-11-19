@@ -2,7 +2,7 @@
 
 #include "GameManager.h"
 
-#include <SFML/Graphics/RenderWindow.hpp>
+//#include <SFML/Graphics/RenderWindow.hpp>
 
 #include <string>
 
