@@ -3,6 +3,7 @@
 #include "3DLightEngine/Entity.h"
 #include "3DLightEngine/Debug.h"
 #include "3DLightEngine/Scene.h"
+#include "GC-simple-render/InputsMethods.h"
 
 #include <iostream>
 
@@ -40,7 +41,7 @@ void GameManager::Init(unsigned int width, unsigned int height)
 
 	m_pWindow = new Window(L"Game Window", width, height);
 	m_pCamera = new Camera(CameraType::PERSPECTIVE);
-	m_pCamera->SetPosition({0.0f, 20.0f, -20.0f});
+	m_pCamera->SetPosition({0.0f, 20.0f, 0.0f});
 	m_pCamera->SetRotation({45.0f, 0.0f, 0.0f});
 	m_pCamera->SetFOV(gce::PI/4.0f);
 	m_pCamera->SetFarPlane(500.0f);
@@ -77,6 +78,7 @@ void GameManager::Run()
 void GameManager::HandleInput()
 {
 	if (m_pScene == nullptr) return;
+
 	m_pScene->HandleInput();
 }
 
@@ -89,7 +91,13 @@ void GameManager::Update()
     {
 		Entity* entity = *it;
 
-        entity->Update();
+        if (entity->IsActive() == false)
+		{
+			++it;
+			continue;
+		}
+
+		entity->Update();
 
         if (entity->ToDestroy() == false)
         {
@@ -97,8 +105,9 @@ void GameManager::Update()
             continue;
         }
 
-        mEntitiesToDestroy.push_back(entity);
-        it = mEntities.erase(it);
+		mEntitiesToDestroy.push_back(entity);
+		++it;
+        //it = mEntities.erase(it);
     }
 
     //Collision
@@ -122,16 +131,36 @@ void GameManager::Update()
         }
     }
 
+	//Destruction des entités
 	for (auto it = mEntitiesToDestroy.begin(); it != mEntitiesToDestroy.end(); ++it) 
 	{
-		delete *it;
+		Entity* entity = *it;
+		entity->SetActive(false);
+		/*delete *it;*/
 	}
 
     mEntitiesToDestroy.clear();
 
-	for (auto it = mEntitiesToAdd.begin(); it != mEntitiesToAdd.end(); ++it)
+	//Ajout des entités
+	for (auto itAdd = mEntitiesToAdd.begin(); itAdd != mEntitiesToAdd.end(); ++itAdd)
 	{
-		mEntities.push_back(*it);
+		auto itReplace = mEntities.end();
+		for (auto it = mEntities.begin(); it != mEntities.end(); ++it)
+		{
+			Entity* entityToCheck = *it;
+			if (entityToCheck->IsActive() == false)
+			{
+				itReplace = it;
+				break;
+			}
+		}
+
+		if (itReplace != mEntities.end())
+		{
+			*itReplace = *itAdd;
+		}
+		else
+			mEntities.push_back(*itAdd);
 	}
 
 	mEntitiesToAdd.clear();
@@ -145,7 +174,8 @@ void GameManager::Draw()
 	
 	for (Entity* entity : mEntities)
 	{
-		m_pWindow->Draw(*entity->GetShape());
+		if (entity->IsActive())
+			m_pWindow->Draw(*entity->GetShape());
 	}
 
 	m_pWindow->End();

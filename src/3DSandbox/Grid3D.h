@@ -25,6 +25,7 @@ public:
     void OnInitialize() override;
     void OnUpdate() override;
     void HandleInput() override;
+    void CameraControl();
     //void OnEvent(const sf::Event& event) override;
 
     void Init(const int configIndex);
@@ -39,6 +40,7 @@ private:
     gce::Vector2i32 m_gridSize;
     gce::Vector2i32 m_gridCenter;
     static gce::Vector3f32 m_anchorPoint;
+	int m_ZoomLevel = 0;
 
     gce::Vector2i32 cursorPos;
 

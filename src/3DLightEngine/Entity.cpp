@@ -5,7 +5,6 @@
 
 Entity::~Entity()
 {
-	// delete m_Shape;
 }
 
 void Entity::Initialize(float radius, gce::Vector3f32 color)
