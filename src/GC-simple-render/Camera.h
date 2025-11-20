@@ -25,7 +25,6 @@ public:
 	gce::Vector3f32 GetPosition() { return m_transform.position; };
 	gce::Vector3f32 GetRotation() { return m_transform.rotation; };
 
-
 	//Perspective settings
 	void SetFOV(float32 fov);
 	void SetNearPlane(float32 nearPlane);

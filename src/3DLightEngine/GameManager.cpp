@@ -41,7 +41,7 @@ void GameManager::Init(unsigned int width, unsigned int height)
 
 	m_pWindow = new Window(L"Game Window", width, height);
 	m_pCamera = new Camera(CameraType::PERSPECTIVE);
-	m_pCamera->SetPosition({0.0f, 20.0f, -20.0f});
+	m_pCamera->SetPosition({0.0f, 20.0f, 0.0f});
 	m_pCamera->SetRotation({45.0f, 0.0f, 0.0f});
 	m_pCamera->SetFOV(gce::PI/4.0f);
 	m_pCamera->SetFarPlane(500.0f);
@@ -78,23 +78,6 @@ void GameManager::Run()
 void GameManager::HandleInput()
 {
 	if (m_pScene == nullptr) return;
-
-	constexpr float DegToRad = 3.14159265358979323846f / 180.0f;
-
-	if (GetKeyDown(Keyboard::NUMPAD4))
-	{
-		m_pCamera->Rotate({ 0.0f, 1.f * DegToRad, 0.0f });
-		m_pCamera->Translate({ -1.0f, 0.0f, 0.0f});
-	}
-	if (GetKeyDown(Keyboard::NUMPAD5))
-		m_pCamera->Translate({ 0.0f, -1.0f, 0.0f });
-	if (GetKeyDown(Keyboard::NUMPAD6))
-	{
-		m_pCamera->Translate({ 1.0f, 0.0f, 0.0f });
-		m_pCamera->Rotate({ 0.0f, -1.f * DegToRad, 0.0f });
-	}
-	if (GetKeyDown(Keyboard::NUMPAD8))
-		m_pCamera->Translate({ 0.0f, 1.0f, 0.0f });
 
 	m_pScene->HandleInput();
 }

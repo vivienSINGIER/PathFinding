@@ -53,6 +53,7 @@ public:
 	float GetDeltaTime() const { return m_DeltaTime; }
 	Scene* GetScene() const { return m_pScene; }
 	Window* GetWindow() const { return m_pWindow; }
+	Camera* GetCamera() const { return m_pCamera; }
 
 	friend Debug;
 	friend Scene;

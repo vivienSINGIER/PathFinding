@@ -124,6 +124,8 @@ void Grid3D::HandleInput()
     if (GetKeyDown(Keyboard::B))
         ToggleWalkable();
 
+    CameraControl();
+
     if (GetKeyDown(Keyboard::ENTER))
     {
         if (m_pSelectedTile != nullptr && m_pSelectedAgent != nullptr)
@@ -153,6 +155,53 @@ void Grid3D::HandleInput()
     if (GetKeyDown(Keyboard::BACKSPACE))
         DeleteAgent();
     
+}
+
+void Grid3D::CameraControl()
+{
+    constexpr float RadToDeg = 180.0f / gce::PI;
+
+	Camera* camera = GameManager::Get()->GetCamera();
+
+	float dt = GameManager::Get()->GetDeltaTime();
+
+    static float theta = - gce::PI / 2.0f;
+    float radius = 25.0f;
+
+    if (GetKey(Keyboard::NUMPAD4) || GetKey(Keyboard::J))
+    {
+        theta -= 0.8f * dt;
+    }
+    if (GetKeyDown(Keyboard::NUMPAD5) || GetKeyDown(Keyboard::K))
+        camera->Translate({ 0.0f, -1.0f, 0.0f });
+    if (GetKey(Keyboard::NUMPAD6) || GetKey(Keyboard::L))
+    {
+        theta += 0.8f * dt;
+    }
+    if (GetKeyDown(Keyboard::NUMPAD8) || GetKeyDown(Keyboard::I))
+        camera->Translate({ 0.0f, 1.0f, 0.0f });
+
+	if (GetKeyDown(Keyboard::NUMPAD1) || GetKeyDown(Keyboard::W))
+	{
+		m_ZoomLevel -= 1;
+	}   
+    if (GetKeyDown(Keyboard::NUMPAD3) || GetKeyDown(Keyboard::C))
+    {
+		m_ZoomLevel += 1;
+    }
+
+    if (GetKeyDown(Keyboard::SPACE)) //Reset Camera
+        theta = -gce::PI / 2.0f;
+
+    float x = cosf(theta) * radius;
+    float z = sinf(theta) * radius;
+
+    camera->SetPosition({ x, camera->GetPosition().y, z + 2.5f });
+	camera->SetFOV(gce::PI / 4.0f - m_ZoomLevel * 0.05f); //Zoom    
+
+    float yaw = -theta - gce::PI / 2.0f;
+	float yawDeg = yaw * RadToDeg;
+    camera->SetRotation({ 45.0f, yawDeg, 0.0f });
 }
 
 void Grid3D::Init(const int configIndex)
