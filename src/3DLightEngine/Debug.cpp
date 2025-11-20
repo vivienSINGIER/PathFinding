@@ -167,14 +167,30 @@ void Debug::DrawLine(gce::Vector3f32 const& start, gce::Vector3f32 const& end, g
 	
 	cyl->SetScale({0.1f, length, 0.1f});
 	
-	gce::Vector3f32 d = dir.Normalize();
+	dir.x = gce::Clamp(dir.x, -1.0f, 1.0f);
+	dir.z = gce::Clamp(dir.z, -1.0f, 1.0f);
 	
-	float yaw   = atan2(d.x, d.z) * (180 / gce::PI);
-	float pitch = atan2(d.y, sqrt(d.x * d.x + d.z * d.z)) * (180 / gce::PI);
+	gce::Vector3f32 rot;
 
-	pitch += 90.0f;
+	if (dir == gce::Vector3f32(1.0f, 0.0f, 0.0f))
+		rot = {0.0f, 0.0f, 90.0f};
+	if (dir == gce::Vector3f32(-1.0f, 0.0f, 0.0f))
+		rot = {0.0f, 0.0f, -90.0f};
+	if (dir == gce::Vector3f32(0.0f, 0.0f, 1.0f))
+		rot = {90.0f, 0.0f, 00.0f};
+	if (dir == gce::Vector3f32(0.0f, 0.0f, -1.0f))
+		rot = {-90.0f, 0.0f, 0.0f};
+	if (dir == gce::Vector3f32(1.0f, 0.0f, 1.0f))
+		rot = {0.0f, -45.0f, 90.0f};
+	if (dir == gce::Vector3f32(-1.0f, 0.0f, 1.0f))
+		rot = {0.0f, 45.0f, 90.0f};
+	if (dir == gce::Vector3f32(1.0f, 0.0f, -1.0f))
+		rot = {0.0f, 45.0f, 90.0f};
+	if (dir == gce::Vector3f32(-1.0f, 0.0f, -1.0f))
+		rot = {0.0f, -45.0f, 90.0f};
 	
-	cyl->SetRotation({yaw, pitch, 0.0f});
+	
+	cyl->SetRotation(rot);
 }
 
 void Debug::DrawCube(gce::Vector3f32 const& center, gce::Vector3f32 const& size, gce::Vector3f32 const& color)

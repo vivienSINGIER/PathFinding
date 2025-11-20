@@ -3,10 +3,9 @@
 
 #include "Agent3D.h"
 #include "Grid3D.h"
-#include "../3DLightEngine/Utils.h"
 #include "Maths/Vector3.h"
 #include "Maths/MathsFunctions.hpp"
-//#include "LightEngine/Debug.h"
+#include "3DLightEngine/Debug.h"
 
 #define SPEED 2.0f
 
@@ -381,18 +380,21 @@ void Agent3D::DrawPaths()
 	{
 		Path& currentPath = m_vPaths[i];
 		if (currentPath.isLoop == true)
-			DrawSinglePath(currentPath, gce::Color(255, 145, 0));
+			DrawSinglePath(currentPath, {1.0f, 145.f / 255.0f, 0.0f});
 		else
 			DrawSinglePath(currentPath);
 	}
 }
 
-void Agent3D::DrawSinglePath(Path& path, gce::Color color)
+void Agent3D::DrawSinglePath(Path& path, gce::Vector3f32 color)
 {
 	Path& currentPath = path;
-
+	
 	if (path.vPositions.empty() == true) return;
 
+	// TODO Use Pch.h
+	float32 halfBlock = 1.25f;
+	
 	for (int i = 0; i < currentPath.vPositions.size() - 1; i++)
 	{
 		gce::Vector2i32 p1 = { currentPath.vPositions[i].x, currentPath.vPositions[i].y };
@@ -401,13 +403,17 @@ void Agent3D::DrawSinglePath(Path& path, gce::Color color)
 		gce::Vector3f32 wP1 = Grid3D::GetWorldPosition(p1);
 		gce::Vector3f32 wP2 = Grid3D::GetWorldPosition(p2);
 
-		//Debug::DrawLine(wP1.x, wP1.y, wP2.x, wP2.y, color);
-		//Debug::DrawCircle(wP1.x, wP1.y, 5.f, gce::Color::Magenta);
-		//Debug::DrawCircle(wP2.x, wP2.y, 5.f, gce::Color::Magenta);
+		Debug::DrawLine({wP1.x, wP1.y + halfBlock + GetRadius(), wP1.z},
+			{wP2.x, wP2.y + halfBlock + GetRadius(), wP2.z}, color);
+		Debug::DrawSphere({wP1.x, wP1.y + halfBlock + GetRadius(), wP1.z},
+			0.5, { 1.0f, 0.0f, 1.0f });
+		Debug::DrawSphere({wP2.x, wP2.y + halfBlock + GetRadius(), wP2.z},
+			0.5, { 1.0f, 0.0f, 1.0f });
 	}
 	gce::Vector2i32 p = { currentPath.vPositions.back().x, currentPath.vPositions.back().y };
 	gce::Vector3f32 wP = Grid3D::GetWorldPosition(p);
-	//Debug::DrawCircle(wP.x, wP.y, 5.f, gce::Color::Magenta);
+	Debug::DrawSphere({wP.x, wP.y + halfBlock + GetRadius(), wP.z},
+			0.5, { 1.0f, 0.0f, 1.0f });
 
 	if (currentPath.detourStart == -1) return;
 
@@ -419,19 +425,23 @@ void Agent3D::DrawSinglePath(Path& path, gce::Color color)
 		gce::Vector3f32 wP1 = Grid3D::GetWorldPosition(p1);
 		gce::Vector3f32 wP2 = Grid3D::GetWorldPosition(p2);
 
-		//Debug::DrawLine(wP1.x, wP1.y, wP2.x, wP2.y, gce::Color::Red);
-		//Debug::DrawCircle(wP1.x, wP1.y, 5.f, gce::Color::Magenta);
-		//Debug::DrawCircle(wP2.x, wP2.y, 5.f, gce::Color::Magenta);
+		Debug::DrawLine({wP1.x, wP1.y + halfBlock + GetRadius(), wP1.z},
+			{wP2.x, wP2.y + halfBlock + GetRadius(), wP2.z}, color);
+		Debug::DrawSphere({wP1.x, wP1.y + halfBlock + GetRadius(), wP1.z},
+			0.5, { 1.0f, 0.0f, 1.0f });
+		Debug::DrawSphere({wP2.x, wP2.y + halfBlock + GetRadius(), wP2.z},
+			0.5, { 1.0f, 0.0f, 1.0f });
 	}
 	p = { currentPath.vDetour.back().x, currentPath.vDetour.back().y };
 	wP = Grid3D::GetWorldPosition(p);
-	//Debug::DrawCircle(wP.x, wP.y, 5.f, gce::Color::Magenta);
+	Debug::DrawSphere({wP.x, wP.y + halfBlock + GetRadius(), wP.z},
+			0.5, { 1.0f, 0.0f, 1.0f });
 }
 
 void Agent3D::PreviewPath(gce::Vector2i32 vector)
 {
 	Path p = GetPath(m_tilePosition, vector);
-	DrawSinglePath(p, gce::Color::White);
+	DrawSinglePath(p, {1.0f, 1.0f, 1.0f});
 }
 
 void Agent3D::ToggleLoop()

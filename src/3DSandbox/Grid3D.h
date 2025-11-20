@@ -56,9 +56,9 @@ private:
 
     Node<Tile>* TrySelectedTile(int x, int y);
     std::vector<Node<Tile>*> GetTouchingTiles(Agent3D* pAgent);
-    void TrySelectedAgent(int x, int y);
     void AddTile(gce::Vector2i32 pos);
     void ToggleWalkable();
+    void DeleteAgent();
 
     void SaveMap();
 };

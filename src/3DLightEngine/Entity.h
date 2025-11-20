@@ -62,7 +62,7 @@ public:
 
 protected:
     Entity() = default;
-    ~Entity() = default;
+    ~Entity();
 
     virtual void OnUpdate() {};
     virtual void OnCollision(Entity* collidedWith) {};

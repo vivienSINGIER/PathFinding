@@ -3,6 +3,11 @@
 #include "3DLightEngine/Utils.h"
 #include "3DLightEngine/Debug.h"
 
+Entity::~Entity()
+{
+	delete m_Shape;
+}
+
 void Entity::Initialize(float radius, gce::Vector3f32 color)
 {
 	mDirection = gce::Vector3f32(0.0f, 0.0f, 0.0f);

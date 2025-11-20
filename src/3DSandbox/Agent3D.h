@@ -48,7 +48,7 @@ public:
 	void SetDetour(int startIndex, int endIndex);
 	Path GetPath(gce::Vector2i32 start, gce::Vector2i32 end);
 	void DrawPaths();
-	void DrawSinglePath(Path& path, gce::Color color = gce::Color::Blue);
+	void DrawSinglePath(Path& path, gce::Vector3f32 color = {0.0f, 0.0f, 1.0f});
 	void PreviewPath(gce::Vector2i32 vector);
 
 	void OnInitialize();

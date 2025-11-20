@@ -128,102 +128,32 @@ void Grid3D::HandleInput()
     {
         if (m_pSelectedTile != nullptr && m_pSelectedAgent != nullptr)
         {
+            if (GetKey(Keyboard::LSHIFT) == false)
+                m_pSelectedAgent->ResetPaths();
             gce::Vector2i32 target = {m_pSelectedTile->data->position.x, m_pSelectedTile->data->position.y};
             m_pSelectedAgent->AddPath(target);
         }
     }
-}
 
-//void Grid3D::OnEvent(const sf::Event& event)
-//{
-//    if (event.type == sf::Event::KeyPressed)
-//    {
-//        bool isSwapping = false;
-//        if (event.key.code == sf::Keyboard::F1)
-//        {
-//            m_gridConfigIndex--;
-//            isSwapping = true;
-//        }
-//        if (event.key.code == sf::Keyboard::F2)
-//        {
-//            m_gridConfigIndex++;
-//            isSwapping = true;
-//        }
-//
-//        if (event.key.code == sf::Keyboard::B)
-//            ToggleWalkable();
-//
-//        if (event.key.code == sf::Keyboard::Delete)
-//        {
-//            if (m_pSelectedAgent != nullptr)
-//            {
-//                m_pSelectedAgent->Destroy();
-//                m_pSelectedAgent = nullptr;
-//            }
-//        }
-//
-//        if (event.key.code == sf::Keyboard::P)
-//        {
-//            if (m_pSelectedAgent != nullptr)
-//            {
-//                m_pSelectedAgent->ToggleLoop();
-//            }
-//        }
-//
-//        if (event.key.code == sf::Keyboard::Add)
-//        {
-//            m_pSelectedAgent->SetSpeedFactor(std::min(5.f, m_pSelectedAgent->GetSpeedFactor() + 1));
-//        }
-//
-//        if (event.key.code == sf::Keyboard::Subtract)
-//        {
-//            m_pSelectedAgent->SetSpeedFactor(std::max(0.f, m_pSelectedAgent->GetSpeedFactor() - 1));
-//        }
-//
-//        if (event.key.code == sf::Keyboard::S && sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
-//            SaveMap();
-//
-//        if (isSwapping)
-//        {
-//            m_pSelectedTile = nullptr;
-//            Clamp(m_gridConfigIndex, 1, 2);
-//            m_vData.clear();
-//            m_vNodes.clear();
-//            Init(m_gridConfigIndex);
-//        }
-//    }
-//
-//    if (event.type == sf::Event::MouseButtonPressed)
-//    {
-//        if (event.mouseButton.button == sf::Mouse::Middle)
-//        {
-//            m_pSelectedTile = TrySelectedTile(event.mouseButton.x, event.mouseButton.y);
-//        }
-//        if (event.mouseButton.button == sf::Mouse::Left && sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-//        {
-//            CreateAgent({ event.mouseButton.x, event.mouseButton.y });
-//        }
-//        if (event.mouseButton.button == sf::Mouse::Left)
-//        {
-//            TrySelectedAgent(event.mouseButton.x, event.mouseButton.y);
-//        }
-//        if (event.mouseButton.button == sf::Mouse::Right)
-//        {
-//            if (m_pSelectedAgent != nullptr)
-//            {
-//                Node<Tile>* target = GetNode(GetTilePosition({ event.mouseButton.x, event.mouseButton.y }));
-//                if (target != nullptr && target->data->isWalkable == true)
-//                {
-//                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) == false)
-//                        m_pSelectedAgent->ResetPaths();
-//                    m_pSelectedAgent->AddPath(GetTilePosition({ event.mouseButton.x, event.mouseButton.y }));
-//                    Reset();
-//                }
-//            }
-//        }
-//
-//    }
-//}
+    if (GetKeyDown(Keyboard::P))
+    {
+        if (m_pSelectedAgent != nullptr)
+            m_pSelectedAgent->ToggleLoop();
+    }
+
+    if (GetKey(Keyboard::TAB))
+    {
+        if (m_pSelectedAgent != nullptr && m_pSelectedTile != nullptr)
+        {
+            gce::Vector2i32 target = {m_pSelectedTile->data->position.x, m_pSelectedTile->data->position.y};
+            m_pSelectedAgent->PreviewPath(target);
+        }
+    }
+    
+    if (GetKeyDown(Keyboard::BACKSPACE))
+        DeleteAgent();
+    
+}
 
 void Grid3D::Init(const int configIndex)
 {
@@ -607,6 +537,24 @@ void Grid3D::ToggleWalkable()
             n->vNeighbours.push_back(GetNode(neig->position));
         }
     }
+}
+
+void Grid3D::DeleteAgent()
+{
+    if (m_pSelectedAgent == nullptr) return;
+
+    m_pSelectedAgent->Destroy();
+    m_vAgents.erase(m_vAgents.begin() + m_selectedAgentIndex);
+    if (m_selectedAgentIndex == m_vAgents.size())
+        m_selectedAgentIndex -= 1;
+    m_selectedAgentIndex = gce::Max(0.0f, m_selectedAgentIndex);
+
+    if (m_vAgents.empty() == false)
+    {
+        m_pSelectedAgent = m_vAgents[m_selectedAgentIndex];
+        m_pSelectedAgent->SetColor({0.0f, 1.0f, 1.0f});
+    }
+    
 }
 
 void Grid3D::SaveMap()
