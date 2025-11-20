@@ -190,7 +190,7 @@ void Grid3D::CameraControl()
 		m_ZoomLevel += 1;
     }
 
-    if (GetKeyDown(Keyboard::SPACE)) //Reset Camera
+    if (GetKeyDown(Keyboard::SPACE)) //Reset Camera Pos
         theta = -gce::PI / 2.0f;
 
     float x = cosf(theta) * radius;
