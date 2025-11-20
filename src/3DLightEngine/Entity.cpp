@@ -5,7 +5,7 @@
 
 Entity::~Entity()
 {
-	delete m_Shape;
+	// delete m_Shape;
 }
 
 void Entity::Initialize(float radius, gce::Vector3f32 color)
@@ -81,8 +81,6 @@ void Entity::Destroy()
 
 void Entity::SetPosition(float x, float y, float z)
 {
-	float size = m_Radius * 2;
-
 	m_Shape->SetPosition({ x, y, z });
 
 	//#TODO Optimise

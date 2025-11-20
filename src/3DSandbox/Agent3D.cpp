@@ -7,7 +7,7 @@
 #include "Maths/MathsFunctions.hpp"
 #include "3DLightEngine/Debug.h"
 
-#define SPEED 2.0f
+#define SPEED 10.0f
 
 void Agent3D::OnInitialize()
 {
@@ -145,7 +145,7 @@ void Agent3D::CheckPathAvailable()
 	{
 		if (temp == grid->GetNode(currentPath.vPositions.back()))
 			m_vPaths.clear();
-		if (currentPath.isLoop == false)
+		else if (currentPath.isLoop == false)
 		{
 			gce::Vector2i32 vPos = m_tilePosition;
 			Path p = GetPath(vPos, m_vPaths.front().vPositions.back());
@@ -312,7 +312,11 @@ void Agent3D::SetDetour(int startIndex, int endIndex)
 	}
 
 	Path p = GetPath(start, end);
-	if (p.vPositions.empty() == true) return;
+	if (p.vPositions.empty() == true)
+	{
+		ResetPaths();
+		return;
+	}
 
 	if (currentPath.detourStart != -1)
 		currentPath.vDetour.erase(currentPath.vDetour.begin() + currentPath.detourIndex, currentPath.vDetour.end());

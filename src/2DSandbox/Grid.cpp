@@ -6,10 +6,11 @@
 #include <fstream>
 #include <queue>
 
-#include "Utils.hpp"
+#include "2DSandbox/Utils.hpp"
 #include "LightEngine/Debug.h"
 #include "GridConfig.h"
 #include "Agent.h"
+#include "../../vendor/GCRender/includes/Core/define.h"
 #include "SFML/Graphics.hpp"
 
 sf::Vector2i Grid::m_anchorPoint = { 0, 0};
@@ -56,13 +57,17 @@ void Grid::OnUpdate()
     for (int i = 0; i < m_vAgents.size(); i++)
     {
         Node<Tile>* n = GetNode(m_vAgents[i]->GetTilePosition());
-        if (n != nullptr)
+        if (n != nullptr && n->data->pOccupyingAgent == nullptr)
             n->data->pOccupyingAgent = m_vAgents[i];
+    }
 
+    for (int i = 0; i < m_vAgents.size(); i++)
+    {
         std::vector<Node<Tile>*> v = GetTouchingTiles(m_vAgents[i]);
         for (int j = 0; j < v.size(); j++)
         {
-            v[j]->data->pOccupyingAgent = m_vAgents[i];
+            if (v[j]->data->pOccupyingAgent == nullptr)
+                v[j]->data->pOccupyingAgent = m_vAgents[i];
         }
     }
 
@@ -342,10 +347,13 @@ sf::Vector2i Grid::GetWorldPosition(sf::Vector2i gridPos)
 void Grid::CalculateNodes()
 {
     m_vNodes.clear();
-    
-    int WIDTH = m_vData[0].size();
-    int HEIGHT = m_vData.size();
 
+    sf::Vector2i maxIndex = {m_vData.back().back().position.x, m_vData.back().back().position.y};
+    sf::Vector2i minIndex = {m_vData.front().front().position.x, m_vData.front().front().position.y};
+
+    int WIDTH = abs(maxIndex.x - minIndex.x) + 1;
+    int HEIGHT = abs(maxIndex.y - minIndex.y) + 1;
+    
     m_gridSize = sf::Vector2i(WIDTH, HEIGHT) * 50;
     
     for (int i = 0; i < HEIGHT; i++)
@@ -362,20 +370,21 @@ void Grid::CalculateNodes()
     {
         Node<Tile>* n = &m_vNodes[i];
         n->vNeighbours.clear();
-        std::vector<Position> neighbours = Position::GetNeighbours(n->data->position, {(int)m_vData[0].size() - 1, (int)m_vData.size() - 1});
+        std::vector<Position> neighbours = Position::GetNeighbours(n->data->position,
+            maxIndex, minIndex);
         
         for (int i = 0; i < neighbours.size(); i++)
         {
             Position p = neighbours[i];
-            Tile* neig = &m_vData[p.y][p.x];
+            Tile* neig = &m_vData[p.y - minIndex.y][p.x - minIndex.x];
 
             if (neig->isWalkable == false) 
                 continue;
             if (n->data->Distance(neig) == 2)
             {
                 Position centerPos = n->data->position;
-                Tile* n1 = &m_vData[p.y][centerPos.x];
-                Tile* n2 = &m_vData[centerPos.y][p.x];
+                Tile* n1 = &m_vData[p.y - minIndex.y][centerPos.x - minIndex.x];
+                Tile* n2 = &m_vData[centerPos.y - minIndex.y][p.x - minIndex.x];
 
                 if (n1->isWalkable == false || n2->isWalkable == false)
                     continue;
@@ -516,24 +525,28 @@ void Grid::ToggleWalkable()
 
     m_pSelectedTile->data->isWalkable = !m_pSelectedTile->data->isWalkable;
 
-    for (int i = 0; i < m_pSelectedTile->vNeighbours.size(); i++)
+    sf::Vector2i maxIndex = {m_vData.back().back().position.x, m_vData.back().back().position.y};
+    sf::Vector2i minIndex = {m_vData.front().front().position.x, m_vData.front().front().position.y};
+
+    if (m_pSelectedTile->data->isWalkable == true)
     {
-        Node<Tile>* n = m_pSelectedTile->vNeighbours[i];
+        Node<Tile>* n = m_pSelectedTile;
         n->vNeighbours.clear();
-        std::vector<Position> neighbours = Position::GetNeighbours(n->data->position, {(int)m_vData[0].size() - 1, (int)m_vData.size() - 1});
+        std::vector<Position> neighbours = Position::GetNeighbours(n->data->position,
+            maxIndex, minIndex);
         
         for (int i = 0; i < neighbours.size(); i++)
         {
             Position p = neighbours[i];
-            Tile* neig = &m_vData[p.y][p.x];
+            Tile* neig = &m_vData[p.y - minIndex.y][p.x - minIndex.x];
 
             if (neig->isWalkable == false) 
                 continue;
             if (n->data->Distance(neig) == 2)
             {
                 Position centerPos = n->data->position;
-                Tile* n1 = &m_vData[p.y][centerPos.x];
-                Tile* n2 = &m_vData[centerPos.y][p.x];
+                Tile* n1 = &m_vData[p.y - minIndex.y][centerPos.x - minIndex.x];
+                Tile* n2 = &m_vData[centerPos.y - minIndex.y][p.x - minIndex.x];
 
                 if (n1->isWalkable == false || n2->isWalkable == false)
                     continue;
@@ -541,6 +554,36 @@ void Grid::ToggleWalkable()
         
             n->vNeighbours.push_back(GetNode(neig->position));
         }
+    }
+    
+    for (int i = 0; i < m_pSelectedTile->vNeighbours.size(); i++)
+    {
+        Node<Tile>* n = m_pSelectedTile->vNeighbours[i];
+        n->vNeighbours.clear();
+        std::vector<Position> neighbours = Position::GetNeighbours(n->data->position,
+            {m_vData.back().back().position.x, m_vData.back().back().position.y},
+            {m_vData.front().front().position.x, m_vData.front().front().position.y});
+        
+        for (int i = 0; i < neighbours.size(); i++)
+        {
+            Position p = neighbours[i];
+            Tile* neig = &m_vData[p.y - minIndex.y][p.x - minIndex.x];
+
+            if (neig->isWalkable == false) 
+                continue;
+            if (n->data->Distance(neig) == 2)
+            {
+                Position centerPos = n->data->position;
+                Tile* n1 = &m_vData[p.y - minIndex.y][centerPos.x - minIndex.x];
+                Tile* n2 = &m_vData[centerPos.y - minIndex.y][p.x - minIndex.x];
+
+                if (n1->isWalkable == false || n2->isWalkable == false)
+                    continue;
+            }
+        
+            n->vNeighbours.push_back(GetNode(neig->position));
+        }
+        
     }
 }
 

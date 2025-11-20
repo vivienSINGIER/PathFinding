@@ -6,7 +6,7 @@
 #include "Utils.hpp"
 #include "LightEngine/Debug.h"
 
-#define SPEED 80.0f
+#define SPEED 150.0f
 
 void Agent::OnInitialize()
 {
@@ -145,7 +145,7 @@ void Agent::CheckPathAvailable()
 	{
 		if (temp == grid->GetNode(currentPath.vPositions.back()))
 			m_vPaths.clear();
-		if (currentPath.isLoop == false)
+		else if (currentPath.isLoop == false)
 		{
 			sf::Vector2i vPos = m_tilePosition;
 			Path p = GetPath(vPos, m_vPaths.front().vPositions.back());
@@ -222,7 +222,7 @@ void Agent::CheckPathOccupied(sf::Vector2i worldPos)
 	
 	if (mSpeed == 0.0f)
 	{
-		if (nextNode->data->pOccupyingAgent == nullptr)
+		if (nextNode->data->pOccupyingAgent == nullptr || nextNode->data->pOccupyingAgent == this)
 		{
 			mSpeed = SPEED;
 			m_StuckTimer = 0.f;
@@ -312,7 +312,11 @@ void Agent::SetDetour(int startIndex, int endIndex)
 	}
 	
 	Path p = GetPath(start, end);
-	if (p.vPositions.empty() == true) return;
+	if (p.vPositions.empty() == true)
+	{
+		ResetPaths();
+		return;
+	}
 
 	if (currentPath.detourStart != -1)
 		currentPath.vDetour.erase(currentPath.vDetour.begin() + currentPath.detourIndex, currentPath.vDetour.end());

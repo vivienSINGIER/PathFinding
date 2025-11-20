@@ -71,13 +71,17 @@ void Grid3D::OnUpdate()
     for (int i = 0; i < m_vAgents.size(); i++)
     {
         Node<Tile>* n = GetNode(m_vAgents[i]->GetTilePosition());
-        if (n != nullptr)
+        if (n != nullptr && n->data->pOccupyingAgent == nullptr)
             n->data->pOccupyingAgent = m_vAgents[i];
+    }
 
+    for (int i = 0; i < m_vAgents.size(); i++)
+    {
         std::vector<Node<Tile>*> v = GetTouchingTiles(m_vAgents[i]);
         for (int j = 0; j < v.size(); j++)
         {
-            v[j]->data->pOccupyingAgent = m_vAgents[i];
+            if (v[j]->data->pOccupyingAgent == nullptr)
+                v[j]->data->pOccupyingAgent = m_vAgents[i];
         }
     }
 
@@ -98,7 +102,7 @@ void Grid3D::OnUpdate()
         }
     }
 
-}
+}   
 
 void Grid3D::HandleInput()
 {
@@ -152,7 +156,24 @@ void Grid3D::HandleInput()
     
     if (GetKeyDown(Keyboard::BACKSPACE))
         DeleteAgent();
-    
+
+    if (GetKeyDown(Keyboard::NUMPAD_ADD))
+    {
+        if (m_pSelectedAgent != nullptr)
+        {
+            float32 sF = m_pSelectedAgent->GetSpeedFactor();
+            m_pSelectedAgent->SetSpeedFactor(gce::Max(sF, sF + 1));
+        }
+    }
+
+    if (GetKeyDown(Keyboard::NUMPAD_SUBTRACT))
+    {
+        if (m_pSelectedAgent != nullptr)
+        {
+            float32 sF = m_pSelectedAgent->GetSpeedFactor();
+            m_pSelectedAgent->SetSpeedFactor(gce::Max(0, sF - 1));
+        }
+    }
 }
 
 void Grid3D::Init(const int configIndex)
@@ -300,8 +321,6 @@ Node<Tile>* Grid3D::AStar(Node<Tile>* startNode, Node<Tile>* endNode, Agent3D* p
 gce::Vector2i32 Grid3D::GetTilePosition(gce::Vector3f32 worldPos)
 {
     gce::Vector2f32 pos = { worldPos.x - m_anchorPoint.x, -(worldPos.z - m_anchorPoint.z) };
-    if (pos.x < 0) pos.x -= BlockSize;
-    if (pos.y < 0) pos.y -= BlockSize;
     pos /= BlockSize;
     
     gce::Vector2i32 result(gce::RoundToInt(pos.x), gce::RoundToInt(pos.y));
@@ -327,8 +346,11 @@ void Grid3D::CalculateNodes()
 {
     m_vNodes.clear();
 
-    int WIDTH = m_vData[0].size();
-    int HEIGHT = m_vData.size();
+    gce::Vector2i32 maxIndex = {m_vData.back().back().position.x, m_vData.back().back().position.y};
+    gce::Vector2i32 minIndex = {m_vData.front().front().position.x, m_vData.front().front().position.y};
+    
+    int WIDTH = abs(maxIndex.x - minIndex.x) + 1;
+    int HEIGHT = abs(maxIndex.y - minIndex.y) + 1;
 
     m_gridSize = gce::Vector2i32(WIDTH, HEIGHT) ;
 
@@ -346,26 +368,30 @@ void Grid3D::CalculateNodes()
     {
         Node<Tile>* n = &m_vNodes[i];
         n->vNeighbours.clear();
-        std::vector<Position> neighbours = Position::GetNeighbours(n->data->position, { (int32)(m_vData[0].size() - 1), (int32)(m_vData.size() - 1) });
+        std::vector<Position> neighbours = Position::GetNeighbours(n->data->position, maxIndex, minIndex);
 
         for (int i = 0; i < neighbours.size(); i++)
         {
             Position p = neighbours[i];
-            Tile* neig = &m_vData[p.y][p.x];
+            Tile* neig = &m_vData[p.y - minIndex.y][p.x - minIndex.x];
 
             if (neig->isWalkable == false)
                 continue;
             if (n->data->Distance(neig) == 2)
             {
                 Position centerPos = n->data->position;
-                Tile* n1 = &m_vData[p.y][centerPos.x];
-                Tile* n2 = &m_vData[centerPos.y][p.x];
+                Tile* n1 = &m_vData[p.y - minIndex.y][centerPos.x - minIndex.x];
+                Tile* n2 = &m_vData[centerPos.y - minIndex.y][p.x - minIndex.x];
 
                 if (n1->isWalkable == false || n2->isWalkable == false)
                     continue;
             }
 
-            n->vNeighbours.push_back(GetNode(neig->position));
+            Node<Tile>* nNeig = GetNode(neig->position);
+            if (nNeig == nullptr)
+                int o = 0;
+            
+            n->vNeighbours.push_back(nNeig);
         }
     }
 }
@@ -440,17 +466,6 @@ std::vector<Node<Tile>*> Grid3D::GetTouchingTiles(Agent3D* pAgent)
     return result;
 }
 
-//void Grid3D::TrySelectedAgent(int x, int y)
-//{
-//    for (Agent* agent : m_vAgents)
-//    {
-//        if (agent->IsInside(x, y) == false)
-//            continue;
-//
-//        m_pSelectedAgent = agent;
-//    }
-//}
-
 void Grid3D::AddTile(gce::Vector2i32 pos)
 {
     if (pos.y < m_vData[0][0].position.y || pos.y > m_vData.back()[0].position.y)
@@ -511,31 +526,65 @@ void Grid3D::ToggleWalkable()
 
     m_pSelectedTile->data->isWalkable = !m_pSelectedTile->data->isWalkable;
 
-    for (int i = 0; i < m_pSelectedTile->vNeighbours.size(); i++)
-    {
-        Node<Tile>* n = m_pSelectedTile->vNeighbours[i];
-        n->vNeighbours.clear();
-        std::vector<Position> neighbours = Position::GetNeighbours(n->data->position, { (int32)(m_vData[0].size() - 1), (int32)(m_vData.size() - 1) });
+    gce::Vector2i32 maxIndex = {m_vData.back().back().position.x, m_vData.back().back().position.y};
+    gce::Vector2i32 minIndex = {m_vData.front().front().position.x, m_vData.front().front().position.y};
 
+    if (m_pSelectedTile->data->isWalkable == true)
+    {
+        Node<Tile>* n = m_pSelectedTile;
+        n->vNeighbours.clear();
+        std::vector<Position> neighbours = Position::GetNeighbours(n->data->position,
+            maxIndex, minIndex);
+        
         for (int i = 0; i < neighbours.size(); i++)
         {
             Position p = neighbours[i];
-            Tile* neig = &m_vData[p.y][p.x];
+            Tile* neig = &m_vData[p.y - minIndex.y][p.x - minIndex.x];
 
-            if (neig->isWalkable == false)
+            if (neig->isWalkable == false) 
                 continue;
             if (n->data->Distance(neig) == 2)
             {
                 Position centerPos = n->data->position;
-                Tile* n1 = &m_vData[p.y][centerPos.x];
-                Tile* n2 = &m_vData[centerPos.y][p.x];
+                Tile* n1 = &m_vData[p.y - minIndex.y][centerPos.x - minIndex.x];
+                Tile* n2 = &m_vData[centerPos.y - minIndex.y][p.x - minIndex.x];
 
                 if (n1->isWalkable == false || n2->isWalkable == false)
                     continue;
             }
-
+        
             n->vNeighbours.push_back(GetNode(neig->position));
         }
+    }
+    
+    for (int i = 0; i < m_pSelectedTile->vNeighbours.size(); i++)
+    {
+        Node<Tile>* n = m_pSelectedTile->vNeighbours[i];
+        n->vNeighbours.clear();
+        std::vector<Position> neighbours = Position::GetNeighbours(n->data->position,
+            {m_vData.back().back().position.x, m_vData.back().back().position.y},
+            {m_vData.front().front().position.x, m_vData.front().front().position.y});
+        
+        for (int i = 0; i < neighbours.size(); i++)
+        {
+            Position p = neighbours[i];
+            Tile* neig = &m_vData[p.y - minIndex.y][p.x - minIndex.x];
+
+            if (neig->isWalkable == false) 
+                continue;
+            if (n->data->Distance(neig) == 2)
+            {
+                Position centerPos = n->data->position;
+                Tile* n1 = &m_vData[p.y - minIndex.y][centerPos.x - minIndex.x];
+                Tile* n2 = &m_vData[centerPos.y - minIndex.y][p.x - minIndex.x];
+
+                if (n1->isWalkable == false || n2->isWalkable == false)
+                    continue;
+            }
+        
+            n->vNeighbours.push_back(GetNode(neig->position));
+        }
+        
     }
 }
 

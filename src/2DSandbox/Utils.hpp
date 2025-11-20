@@ -5,9 +5,6 @@
 #include <string>
 #include <Windows.h>
 
-#define WHITE "\x1b[97m"
-#define GREEN "\x1b[92m"
-
 #define BG_BLACK "\x1b[40m"
 #define BG_GREEN "\x1b[102m"
 #define BG_BLUE "\x1b[104m"
