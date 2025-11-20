@@ -3,6 +3,7 @@
 #include "3DLightEngine/Entity.h"
 #include "3DLightEngine/Debug.h"
 #include "3DLightEngine/Scene.h"
+#include "GC-simple-render/InputsMethods.h"
 
 #include <iostream>
 
@@ -77,6 +78,24 @@ void GameManager::Run()
 void GameManager::HandleInput()
 {
 	if (m_pScene == nullptr) return;
+
+	constexpr float DegToRad = 3.14159265358979323846f / 180.0f;
+
+	if (GetKeyDown(Keyboard::NUMPAD4))
+	{
+		m_pCamera->Rotate({ 0.0f, 1.f * DegToRad, 0.0f });
+		m_pCamera->Translate({ -1.0f, 0.0f, 0.0f});
+	}
+	if (GetKeyDown(Keyboard::NUMPAD5))
+		m_pCamera->Translate({ 0.0f, -1.0f, 0.0f });
+	if (GetKeyDown(Keyboard::NUMPAD6))
+	{
+		m_pCamera->Translate({ 1.0f, 0.0f, 0.0f });
+		m_pCamera->Rotate({ 0.0f, -1.f * DegToRad, 0.0f });
+	}
+	if (GetKeyDown(Keyboard::NUMPAD8))
+		m_pCamera->Translate({ 0.0f, 1.0f, 0.0f });
+
 	m_pScene->HandleInput();
 }
 
@@ -89,7 +108,13 @@ void GameManager::Update()
     {
 		Entity* entity = *it;
 
-        entity->Update();
+        if (entity->IsActive() == false)
+		{
+			++it;
+			continue;
+		}
+
+		entity->Update();
 
         if (entity->ToDestroy() == false)
         {
@@ -97,8 +122,9 @@ void GameManager::Update()
             continue;
         }
 
-        mEntitiesToDestroy.push_back(entity);
-        it = mEntities.erase(it);
+		mEntitiesToDestroy.push_back(entity);
+		++it;
+        //it = mEntities.erase(it);
     }
 
     //Collision
@@ -122,16 +148,36 @@ void GameManager::Update()
         }
     }
 
+	//Destruction des entités
 	for (auto it = mEntitiesToDestroy.begin(); it != mEntitiesToDestroy.end(); ++it) 
 	{
-		delete *it;
+		Entity* entity = *it;
+		entity->SetActive(false);
+		/*delete *it;*/
 	}
 
     mEntitiesToDestroy.clear();
 
-	for (auto it = mEntitiesToAdd.begin(); it != mEntitiesToAdd.end(); ++it)
+	//Ajout des entités
+	for (auto itAdd = mEntitiesToAdd.begin(); itAdd != mEntitiesToAdd.end(); ++itAdd)
 	{
-		mEntities.push_back(*it);
+		auto itReplace = mEntities.end();
+		for (auto it = mEntities.begin(); it != mEntities.end(); ++it)
+		{
+			Entity* entityToCheck = *it;
+			if (entityToCheck->IsActive() == false)
+			{
+				itReplace = it;
+				break;
+			}
+		}
+
+		if (itReplace != mEntities.end())
+		{
+			*itReplace = *itAdd;
+		}
+		else
+			mEntities.push_back(*itAdd);
 	}
 
 	mEntitiesToAdd.clear();
@@ -145,7 +191,8 @@ void GameManager::Draw()
 	
 	for (Entity* entity : mEntities)
 	{
-		m_pWindow->Draw(*entity->GetShape());
+		if (entity->IsActive())
+			m_pWindow->Draw(*entity->GetShape());
 	}
 
 	m_pWindow->End();

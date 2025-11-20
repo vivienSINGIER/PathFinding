@@ -554,6 +554,10 @@ void Grid3D::DeleteAgent()
         m_pSelectedAgent = m_vAgents[m_selectedAgentIndex];
         m_pSelectedAgent->SetColor({0.0f, 1.0f, 1.0f});
     }
+    else
+    {
+		m_pSelectedAgent = nullptr;
+    }
     
 }
 

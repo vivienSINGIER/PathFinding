@@ -6,7 +6,6 @@
 #include "GC-simple-render/Window.h"
 #include "Chrono.h"
 
-
 class Entity;
 class Scene;
 class Debug;

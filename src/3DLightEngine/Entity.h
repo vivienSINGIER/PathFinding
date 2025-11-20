@@ -25,6 +25,7 @@ protected:
     bool mToDestroy = false;
     int mTag = -1;
 	bool mRigidBody = false;
+	bool m_IsActive = true;
 
 public:
 	bool GoToDirection(float x, float y, float z, float speed = -1.f);
@@ -38,6 +39,8 @@ public:
 	float GetRadius() const { return m_Radius; }
 	void SetRigidBody(bool isRigitBody) { mRigidBody = isRigitBody; }
 	bool IsRigidBody() const { return mRigidBody; }
+	bool IsActive() const { return m_IsActive; }
+	void SetActive(bool isActive) { m_IsActive = isActive; }
 
 	void SetColor(gce::Vector3f32 const& color) {m_Shape->SetColor(color); }
 
