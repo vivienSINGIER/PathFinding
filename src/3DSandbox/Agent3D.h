@@ -50,6 +50,7 @@ public:
 	void DrawPaths();
 	void DrawSinglePath(Path& path, gce::Vector3f32 color = {0.0f, 0.0f, 1.0f});
 	void PreviewPath(gce::Vector2i32 vector);
+	void UpdateHeight(float32 height);
 
 	void OnInitialize();
 	void OnDestroy() {}

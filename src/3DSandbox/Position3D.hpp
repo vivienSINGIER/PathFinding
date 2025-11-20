@@ -6,7 +6,7 @@ struct Position
 {
     int x = 0;
     int y = 0;
-	float height = 0;
+	float height = 0.0f;
 
     bool operator==(Position& other)
     {

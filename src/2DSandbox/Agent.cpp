@@ -140,6 +140,7 @@ void Agent::CheckPathAvailable()
 		currPos = currPos + intDirection;
 		temp = grid->GetNode(currPos);
 	}
+	section.push_back(temp);
 	
 	if (temp->data->isWalkable == false)
 	{
@@ -169,12 +170,8 @@ void Agent::CheckPathAvailable()
 		if (section[i]->data->isWalkable == false)
 		{
 			int index = 0;
-			
 			if (i != 1)
 				index = 1;
-
-			if (i == section.size() - 1)
-				int o = 0;
 				
 			if (currentPath.isLoop == true)
 			{

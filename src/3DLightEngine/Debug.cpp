@@ -150,8 +150,6 @@ void Debug::DrawLine(gce::Vector3f32 const& start, gce::Vector3f32 const& end, g
 {
 	int index = Get()->GetFirstAvailableLine();
 	if (index == -1) return;
-
-	//TODO Use Quaternions
 	
 	DebugGeo& geo = Get()->m_vLines[index];
 	Geometry* cyl = geo.pGeometry;
@@ -160,6 +158,8 @@ void Debug::DrawLine(gce::Vector3f32 const& start, gce::Vector3f32 const& end, g
 	geo.isUsed = true;
 	
 	gce::Vector3f32 dir = end - start;
+	gce::Vector3f32 tiltDir = dir;
+	tiltDir.SelfNormalize();
 	float length = dir.Norm();
 	
 	gce::Vector3f32 mid = start + dir * 0.5f;
@@ -168,27 +168,42 @@ void Debug::DrawLine(gce::Vector3f32 const& start, gce::Vector3f32 const& end, g
 	cyl->SetScale({0.1f, length, 0.1f});
 	
 	dir.x = gce::Clamp(dir.x, -1.0f, 1.0f);
+	dir.y = 0.f;
 	dir.z = gce::Clamp(dir.z, -1.0f, 1.0f);
 	
 	gce::Vector3f32 rot;
 
-	if (dir == gce::Vector3f32(1.0f, 0.0f, 0.0f))
-		rot = {0.0f, 0.0f, 90.0f};
-	if (dir == gce::Vector3f32(-1.0f, 0.0f, 0.0f))
-		rot = {0.0f, 0.0f, -90.0f};
-	if (dir == gce::Vector3f32(0.0f, 0.0f, 1.0f))
-		rot = {90.0f, 0.0f, 00.0f};
-	if (dir == gce::Vector3f32(0.0f, 0.0f, -1.0f))
-		rot = {-90.0f, 0.0f, 0.0f};
-	if (dir == gce::Vector3f32(1.0f, 0.0f, 1.0f))
-		rot = {0.0f, -45.0f, 90.0f};
-	if (dir == gce::Vector3f32(-1.0f, 0.0f, 1.0f))
-		rot = {0.0f, 45.0f, 90.0f};
-	if (dir == gce::Vector3f32(1.0f, 0.0f, -1.0f))
-		rot = {0.0f, 45.0f, 90.0f};
-	if (dir == gce::Vector3f32(-1.0f, 0.0f, -1.0f))
-		rot = {0.0f, -45.0f, 90.0f};
+	float tilt = asinf(tiltDir.y) * 180.0f / gce::PI;
 	
+	if (dir == gce::Vector3f32(1.0f, 0.0f, 0.0f))
+		rot = {0.0f, 0.0f, 90.0f + tilt};
+	if (dir == gce::Vector3f32(-1.0f, 0.0f, 0.0f))
+		rot = {0.0f, 0.0f, -90.0f - tilt};
+	if (dir == gce::Vector3f32(0.0f, 0.0f, 1.0f))
+		rot = {90.0f - tilt, 0.0f, 00.0f};
+	if (dir == gce::Vector3f32(0.0f, 0.0f, -1.0f))
+		rot = {-90.0f + tilt, 0.0f, 0.0f};
+	if (dir == gce::Vector3f32(1.0f, 0.0f, 1.0f))
+		rot = {0.0f, -45.0f, 90.0f + tilt};
+	if (dir == gce::Vector3f32(-1.0f, 0.0f, 1.0f))
+		rot = {0.0f, 45.0f, 90.0f - tilt};
+	if (dir == gce::Vector3f32(1.0f, 0.0f, -1.0f))
+		rot = {0.0f, 45.0f, 90.0f + tilt};
+	if (dir == gce::Vector3f32(-1.0f, 0.0f, -1.0f))
+		rot = {0.0f, -45.0f, 90.0f - tilt};
+
+	dir = end - start;
+	dir.SelfNormalize();
+	
+	// if (start.y != end.y)
+	// {
+	// 	float tilt = asinf(dir.y) * 180.0f / gce::PI;
+	// 	if (dir.y != 0.0f)
+	// 		rot.z += tilt;
+	// 	if (dir.x != 0.0f)
+	// 		rot.x += tilt;
+	// 	// rot.x += tilt;
+	// }
 	
 	cyl->SetRotation(rot);
 }
