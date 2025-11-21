@@ -38,15 +38,18 @@ struct Position
         return *this;
     }
 
-    static std::vector<Position> GetNeighbours(Position const& pos, sf::Vector2i maxSize)
+    static std::vector<Position> GetNeighbours(Position const& pos, sf::Vector2i maxSize, sf::Vector2i minSize)
     {
+        if (pos.x < 0 || pos.y < 0)
+            int o = 0;
+        
         std::vector<Position> neighbours;
         for (int i = -1; i <= 1; i++)
         {
             for (int j = -1; j <= 1; j++)
             {
                 if (j == 0 && i == 0)                 continue;
-                if (pos.y + j < 0 || pos.x + i < 0)                   continue;
+                if (pos.y + j < minSize.y || pos.x + i < minSize.x)                   continue;
                 if (pos.y + j > maxSize.y || pos.x + i > maxSize.x)   continue;
                 
                 neighbours.push_back(Position{ pos.x + i, pos.y + j });

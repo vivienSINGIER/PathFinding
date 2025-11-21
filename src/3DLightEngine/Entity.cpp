@@ -80,8 +80,6 @@ void Entity::Destroy()
 
 void Entity::SetPosition(float x, float y, float z)
 {
-	float size = m_Radius * 2;
-
 	m_Shape->SetPosition({ x, y, z });
 
 	//#TODO Optimise

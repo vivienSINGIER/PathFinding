@@ -7,7 +7,7 @@
 #include "Maths/MathsFunctions.hpp"
 #include "3DLightEngine/Debug.h"
 
-#define SPEED 2.0f
+#define SPEED 10.0f
 
 void Agent3D::OnInitialize()
 {
@@ -140,12 +140,13 @@ void Agent3D::CheckPathAvailable()
 		currPos = currPos + intDirection;
 		temp = grid->GetNode(currPos);
 	}
+	section.push_back(temp);
 
-	if (temp->data->isWalkable == false)
+	if (temp->data->isWalkable == false || temp->vNeighbours.empty())
 	{
 		if (temp == grid->GetNode(currentPath.vPositions.back()))
 			m_vPaths.clear();
-		if (currentPath.isLoop == false)
+		else if (currentPath.isLoop == false)
 		{
 			gce::Vector2i32 vPos = m_tilePosition;
 			Path p = GetPath(vPos, m_vPaths.front().vPositions.back());
@@ -166,33 +167,42 @@ void Agent3D::CheckPathAvailable()
 
 	for (int i = 0; i < section.size(); i++)
 	{
-		if (section[i]->data->isWalkable == false)
+		bool obstructed = false;
+		if (i > 0)
 		{
-			int index = 0;
+			Position p1 = section[i - 1]->data->position;
+			Position p2 = section[i]->data->position;
+			float32 heightDif = abs(p2.height - p1.height);
+			// TODO Use pch.h
+			if (heightDif > 0.5f)
+				obstructed = true;
+		}
+		
+		if (section[i]->data->isWalkable == false)
+			obstructed = true;
 
-			if (i != 1)
-				index = 1;
-
-			if (i == section.size() - 1)
-				int o = 0;
-
-			if (currentPath.isLoop == true)
-			{
-				if (currentPath.detourStart == -1)
-					SetDetour(currentPath.index - 1, currentPath.index);
-				else
-					SetDetour(currentPath.detourStart, currentPath.detourEnd);
-				SetTarget();
-				break;
-			}
-
-			gce::Vector2i32 vPos = { (int8)section[index]->data->position.x, (int8)section[index]->data->position.y };
-			Path p = GetPath(vPos, m_vPaths.front().vPositions.back());
-			m_vPaths.erase(m_vPaths.begin());
-			m_vPaths.insert(m_vPaths.begin(), p);
+		if (obstructed == false) continue;
+		
+		int index = 0;
+		if (i != 1)
+			index = 1;
+		
+		if (currentPath.isLoop == true)
+		{
+			if (currentPath.detourStart == -1)
+				SetDetour(currentPath.index - 1, currentPath.index);
+			else
+				SetDetour(currentPath.detourStart, currentPath.detourEnd);
 			SetTarget();
 			break;
 		}
+
+		gce::Vector2i32 vPos = { (int8)section[index]->data->position.x, (int8)section[index]->data->position.y };
+		Path p = GetPath(vPos, m_vPaths.front().vPositions.back());
+		m_vPaths.erase(m_vPaths.begin());
+		m_vPaths.insert(m_vPaths.begin(), p);
+		SetTarget();
+		break;
 	}
 }
 
@@ -312,7 +322,11 @@ void Agent3D::SetDetour(int startIndex, int endIndex)
 	}
 
 	Path p = GetPath(start, end);
-	if (p.vPositions.empty() == true) return;
+	if (p.vPositions.empty() == true)
+	{
+		ResetPaths();
+		return;
+	}
 
 	if (currentPath.detourStart != -1)
 		currentPath.vDetour.erase(currentPath.vDetour.begin() + currentPath.detourIndex, currentPath.vDetour.end());
@@ -391,6 +405,7 @@ void Agent3D::DrawSinglePath(Path& path, gce::Vector3f32 color)
 	Path& currentPath = path;
 	
 	if (path.vPositions.empty() == true) return;
+	Grid3D* grid = GetScene<Grid3D>();
 
 	// TODO Use Pch.h
 	float32 halfBlock = 1.25f;
@@ -403,16 +418,20 @@ void Agent3D::DrawSinglePath(Path& path, gce::Vector3f32 color)
 		gce::Vector3f32 wP1 = Grid3D::GetWorldPosition(p1);
 		gce::Vector3f32 wP2 = Grid3D::GetWorldPosition(p2);
 
-		Debug::DrawLine({wP1.x, wP1.y + halfBlock + GetRadius(), wP1.z},
-			{wP2.x, wP2.y + halfBlock + GetRadius(), wP2.z}, color);
-		Debug::DrawSphere({wP1.x, wP1.y + halfBlock + GetRadius(), wP1.z},
+		float32 height1 = grid->GetNode(p1)->data->position.height;
+		float32 height2 = grid->GetNode(p2)->data->position.height;
+		
+		Debug::DrawLine({wP1.x, height1 + halfBlock + GetRadius(), wP1.z},
+			{wP2.x, height2 + halfBlock + GetRadius(), wP2.z}, color);
+		Debug::DrawSphere({wP1.x, height1 + halfBlock + GetRadius(), wP1.z},
 			0.5, { 1.0f, 0.0f, 1.0f });
-		Debug::DrawSphere({wP2.x, wP2.y + halfBlock + GetRadius(), wP2.z},
+		Debug::DrawSphere({wP2.x, height2 + halfBlock + GetRadius(), wP2.z},
 			0.5, { 1.0f, 0.0f, 1.0f });
 	}
 	gce::Vector2i32 p = { currentPath.vPositions.back().x, currentPath.vPositions.back().y };
 	gce::Vector3f32 wP = Grid3D::GetWorldPosition(p);
-	Debug::DrawSphere({wP.x, wP.y + halfBlock + GetRadius(), wP.z},
+	float32 height = grid->GetNode(p)->data->position.height;
+	Debug::DrawSphere({wP.x, height + halfBlock + GetRadius(), wP.z},
 			0.5, { 1.0f, 0.0f, 1.0f });
 
 	if (currentPath.detourStart == -1) return;
@@ -425,16 +444,20 @@ void Agent3D::DrawSinglePath(Path& path, gce::Vector3f32 color)
 		gce::Vector3f32 wP1 = Grid3D::GetWorldPosition(p1);
 		gce::Vector3f32 wP2 = Grid3D::GetWorldPosition(p2);
 
-		Debug::DrawLine({wP1.x, wP1.y + halfBlock + GetRadius(), wP1.z},
-			{wP2.x, wP2.y + halfBlock + GetRadius(), wP2.z}, color);
-		Debug::DrawSphere({wP1.x, wP1.y + halfBlock + GetRadius(), wP1.z},
+		float32 height1 = grid->GetNode(p1)->data->position.height;
+		float32 height2 = grid->GetNode(p2)->data->position.height;
+		
+		Debug::DrawLine({wP1.x, height1 + halfBlock + GetRadius(), wP1.z},
+			{wP2.x, height2 + halfBlock + GetRadius(), wP2.z}, color);
+		Debug::DrawSphere({wP1.x, height1 + halfBlock + GetRadius(), wP1.z},
 			0.5, { 1.0f, 0.0f, 1.0f });
-		Debug::DrawSphere({wP2.x, wP2.y + halfBlock + GetRadius(), wP2.z},
+		Debug::DrawSphere({wP2.x, height2 + halfBlock + GetRadius(), wP2.z},
 			0.5, { 1.0f, 0.0f, 1.0f });
 	}
 	p = { currentPath.vDetour.back().x, currentPath.vDetour.back().y };
 	wP = Grid3D::GetWorldPosition(p);
-	Debug::DrawSphere({wP.x, wP.y + halfBlock + GetRadius(), wP.z},
+	height = grid->GetNode(p)->data->position.height;
+	Debug::DrawSphere({wP.x, height + halfBlock + GetRadius(), wP.z},
 			0.5, { 1.0f, 0.0f, 1.0f });
 }
 
@@ -442,6 +465,12 @@ void Agent3D::PreviewPath(gce::Vector2i32 vector)
 {
 	Path p = GetPath(m_tilePosition, vector);
 	DrawSinglePath(p, {1.0f, 1.0f, 1.0f});
+}
+
+void Agent3D::UpdateHeight(float32 height)
+{
+	m_Shape->SetPosition({GetPosition().x, height + 1.25f + GetRadius(), GetPosition().z});
+	mTarget.position.y = height + 1.25f + GetRadius();
 }
 
 void Agent3D::ToggleLoop()
