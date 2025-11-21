@@ -97,13 +97,19 @@ void Grid::OnEvent(const sf::Event& event)
         bool isSwapping = false;
         if (event.key.code == sf::Keyboard::F1)
         {
-            m_gridConfigIndex--;
-            isSwapping = true;
+            if (m_gridConfigIndex > 1)
+            {
+                m_gridConfigIndex--;
+                isSwapping = true;
+            }
         }
         if (event.key.code == sf::Keyboard::F2)
         {
-            m_gridConfigIndex++;
-            isSwapping = true;
+            if (m_gridConfigIndex < 4)
+            {
+                m_gridConfigIndex++;
+                isSwapping = true;
+            }
         }
 
         if (event.key.code == sf::Keyboard::B)
@@ -142,7 +148,7 @@ void Grid::OnEvent(const sf::Event& event)
         if (isSwapping)
         {
             m_pSelectedTile = nullptr;
-            Clamp(m_gridConfigIndex, 1, 2);
+            Clamp(m_gridConfigIndex, 1, 4);
             m_vData.clear();
             m_vNodes.clear();
             Init(m_gridConfigIndex);
@@ -200,7 +206,7 @@ void Grid::Init(const int configIndex)
             Tile tempTile;
             tempTile.position.x = j;
             tempTile.position.y = i;
-            if (GRID[i][j] == '0')
+            if (GRID[i][j] == '#')
                 tempTile.isWalkable = false;
             else
                 tempTile.isWalkable = true;
@@ -213,6 +219,7 @@ void Grid::Init(const int configIndex)
     {
         m_vAgents[i]->Destroy();
     }
+	m_vAgents.clear();
     m_pSelectedAgent = nullptr;
 
     CalculateNodes();
@@ -589,7 +596,7 @@ void Grid::ToggleWalkable()
 
 void Grid::SaveMap()
 {
-    std::string filePath = "/../../res/Map";
+    std::string filePath = "../../res/Map";
     filePath.append(std::to_string(m_gridConfigIndex));
     filePath.append(".txt");
 
@@ -604,9 +611,9 @@ void Grid::SaveMap()
         for (int j = 0; j < m_vData[i].size(); j++)
         {
             if (m_vData[i][j].isWalkable)
-                temp.append("1");
-            else
                 temp.append("0");
+            else
+                temp.append("#");
         }
         temp.append("\n");
         file << temp;

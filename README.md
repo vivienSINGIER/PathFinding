@@ -35,3 +35,6 @@ P = Mode patrouille
 Plus = Augmente la vitesse de l'agent
 Moins = Diminue la vitesse de l'agent
 Suppr / Del = Supprimer l'agent
+
+F1 / F2 = Changement de preset de map
+Control + S = Sauvegarde de la map actuelle sur le preset
