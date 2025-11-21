@@ -11,6 +11,8 @@
 
 std::vector<std::vector<char>> GridConfig::config1;
 std::vector<std::vector<char>> GridConfig::config2;
+std::vector<std::vector<char>> GridConfig::config3;
+std::vector<std::vector<char>> GridConfig::config4;
 
 std::vector<std::vector<char>> GridConfig::LoadConfig(int index)
 {
@@ -44,6 +46,8 @@ void GridConfig::LoadConfigs()
 {
 	GridConfig::config1 = LoadConfig(1);
 	GridConfig::config2 = LoadConfig(2);
+	GridConfig::config3 = LoadConfig(3);
+	GridConfig::config4 = LoadConfig(4);
 }
 
 std::vector<std::vector<char>>& GridConfig::GetConfig(int configIndex)
@@ -54,6 +58,10 @@ std::vector<std::vector<char>>& GridConfig::GetConfig(int configIndex)
 		return config1;
 	case 2:
 		return config2;
+    case 3:
+        return config3;
+    case 4:
+        return config4;
 	default:
 		break;
 	}
