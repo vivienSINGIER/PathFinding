@@ -73,7 +73,7 @@
             "dependents": [],
             "guid": "51C14002-70E1-4ECD-791D-2CE33C9C02C2",
             "lib": false,
-            "pch": false,
+            "pch": true,
             "preprocessorDefinitions": [],
             "vcpkg": false,
             "window": false

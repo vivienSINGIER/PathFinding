@@ -1,3 +1,4 @@
+#include "pch.h"
 #ifndef AGENT_CPP_INCLUDED
 #define AGENT_CPP_INCLUDED
 
@@ -173,8 +174,7 @@ void Agent3D::CheckPathAvailable()
 			Position p1 = section[i - 1]->data->position;
 			Position p2 = section[i]->data->position;
 			float32 heightDif = abs(p2.height - p1.height);
-			// TODO Use pch.h
-			if (heightDif > 0.5f)
+			if (heightDif > StepMax)
 				obstructed = true;
 		}
 		
@@ -406,9 +406,8 @@ void Agent3D::DrawSinglePath(Path& path, gce::Vector3f32 color)
 	
 	if (path.vPositions.empty() == true) return;
 	Grid3D* grid = GetScene<Grid3D>();
-
-	// TODO Use Pch.h
-	float32 halfBlock = 1.25f;
+	
+	float32 halfBlock = MyBlockSize * 0.5f;
 	
 	for (int i = 0; i < currentPath.vPositions.size() - 1; i++)
 	{

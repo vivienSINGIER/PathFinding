@@ -1,3 +1,4 @@
+#include "pch.h"
 #ifndef GRID3D_CPP_INCLUDED
 #define GRID3D_CPP_INCLUDED
 
@@ -11,9 +12,6 @@
 #include "GridConfig3D.h"
 #include "Agent3D.h"
 #include "GC-simple-render/InputsMethods.h"
-
-#define BlockSize 2.5f
-#define StepMax 0.5f
 
 gce::Vector3f32 Grid3D::m_anchorPoint = { 0, 0, 0 };
 
@@ -107,6 +105,23 @@ void Grid3D::OnUpdate()
 
 void Grid3D::HandleInput()
 {
+    // Select Grid Config
+    int oldIndex = m_gridConfigIndex;
+    if (GetKeyDown(Keyboard::F1))
+        m_gridConfigIndex--;
+    if (GetKeyDown(Keyboard::F2))
+        m_gridConfigIndex++;
+    m_gridConfigIndex = gce::Clamp(m_gridConfigIndex, 1, 2);
+    if (m_gridConfigIndex != oldIndex)
+        Init(m_gridConfigIndex);
+
+    // Save Grid Config
+    if (GetKeyDown(Keyboard::S))
+    {
+        if(GetKey(Keyboard::LCONTROL))
+            SaveMap();
+    }
+    
     // Select tile
     if (GetKeyDown(Keyboard::LEFT))
         cursorPos.x -= 1;
@@ -261,7 +276,8 @@ void Grid3D::Init(const int configIndex)
     int WIDTH = GRID[0].size();
 
     if (GRID.empty()) return;
-
+    m_vData.clear();
+    
     // Tiles & Nodes Vect
     for (int i = 0; i < HEIGHT; i++)
     {
@@ -271,10 +287,13 @@ void Grid3D::Init(const int configIndex)
             Tile tempTile;
             tempTile.position.x = j;
             tempTile.position.y = i;
-            if (GRID[i][j] == '0')
+            if (GRID[i][j] == '#')
                 tempTile.isWalkable = false;
             else
+            {
                 tempTile.isWalkable = true;
+                tempTile.position.height = float32(GRID[i][j] - '0') / 5.0f;
+            }
             tempTiles.push_back(tempTile);
         }
         m_vData.push_back(tempTiles);
@@ -288,8 +307,8 @@ void Grid3D::Init(const int configIndex)
 
     CalculateNodes();
 
-    float offsetX = - m_gridSize.x * BlockSize * 0.5f + BlockSize * 0.5f;
-    float offsetY = m_gridSize.y * BlockSize * 0.5f + BlockSize * 0.5f;
+    float offsetX = - m_gridSize.x * MyBlockSize * 0.5f + MyBlockSize * 0.5f;
+    float offsetY = m_gridSize.y * MyBlockSize * 0.5f + MyBlockSize * 0.5f;
     Grid3D::m_anchorPoint = gce::Vector3f32(offsetX, 0.0f, offsetY);
 
     m_pSelectedTile = GetNode(Position(0, 0));
@@ -329,8 +348,8 @@ void Grid3D::Draw()
             color = {1.0f, 0.0f, 0.0f};
 
     if (n->data->isWalkable || n == m_pSelectedTile)
-        Debug::DrawCube({m_anchorPoint.x + p.x * BlockSize, n->data->position.height,m_anchorPoint.z - p.y * BlockSize},
-            {BlockSize - 0.2f, BlockSize - 0.2f, BlockSize - 0.2f}, color);
+        Debug::DrawCube({m_anchorPoint.x + p.x * MyBlockSize, n->data->position.height,m_anchorPoint.z - p.y * MyBlockSize},
+            {MyBlockSize - 0.2f, MyBlockSize - 0.2f, MyBlockSize - 0.2f}, color);
     }
 
     for (Agent3D* agent : m_vAgents)
@@ -352,7 +371,7 @@ void Grid3D::CreateAgent()
 
     
     Agent3D* tempAgent = CreateEntity<Agent3D>(1.f, gce::Vector3f32(0.0f, 0.0f, 1.0f));
-    tempAgent->SetPosition(m_anchorPoint.x + pos.x * BlockSize, BlockSize * 0.5f + 1, m_anchorPoint.z - pos.y * BlockSize);
+    tempAgent->SetPosition(m_anchorPoint.x + pos.x * MyBlockSize, MyBlockSize * 0.5f + 1, m_anchorPoint.z - pos.y * MyBlockSize);
 
     m_vAgents.push_back(tempAgent);
 }
@@ -405,7 +424,7 @@ Node<Tile>* Grid3D::AStar(Node<Tile>* startNode, Node<Tile>* endNode, Agent3D* p
 gce::Vector2i32 Grid3D::GetTilePosition(gce::Vector3f32 worldPos)
 {
     gce::Vector2f32 pos = { worldPos.x - m_anchorPoint.x, -(worldPos.z - m_anchorPoint.z) };
-    pos /= BlockSize;
+    pos /= MyBlockSize;
     
     gce::Vector2i32 result(gce::RoundToInt(pos.x), gce::RoundToInt(pos.y));
 
@@ -414,16 +433,16 @@ gce::Vector2i32 Grid3D::GetTilePosition(gce::Vector3f32 worldPos)
 
 gce::Vector3f32 Grid3D::GetWorldPosition(gce::Vector2i32 gridPos)
 {
-    return { m_anchorPoint.x + gridPos.x * BlockSize,
+    return { m_anchorPoint.x + gridPos.x * MyBlockSize,
         0.0f,
-        m_anchorPoint.z - gridPos.y * BlockSize };
+        m_anchorPoint.z - gridPos.y * MyBlockSize };
 }
 
 gce::Vector3f32 Grid3D::GetWorldPosition(Position const& gridPos)
 {
-    return { m_anchorPoint.x + (float32)gridPos.x * BlockSize,
+    return { m_anchorPoint.x + (float32)gridPos.x * MyBlockSize,
         0.0f,
-        m_anchorPoint.z - (float32)gridPos.y * BlockSize };
+        m_anchorPoint.z - (float32)gridPos.y * MyBlockSize };
 }
 
 void Grid3D::CalculateNodes()
@@ -566,9 +585,9 @@ std::vector<Node<Tile>*> Grid3D::GetTouchingTiles(Agent3D* pAgent)
         float dx = abs(otherPos.x - pos.x);
         float dy = abs(otherPos.z - pos.z);
 
-        if (dx > BlockSize * 0.5f + pAgent->GetRadius())
+        if (dx > MyBlockSize * 0.5f + pAgent->GetRadius())
             continue;
-        if (dy > BlockSize * 0.5f + pAgent->GetRadius())
+        if (dy > MyBlockSize * 0.5f + pAgent->GetRadius())
             continue;
 
         result.push_back(other);
@@ -656,7 +675,7 @@ void Grid3D::DeleteAgent()
     if (m_vAgents.empty() == false)
     {
         m_pSelectedAgent = m_vAgents[m_selectedAgentIndex];
-        m_pSelectedAgent->SetColor({0.0f, 1.0f, 1.0f});
+        m_pSelectedAgent->SetColor({1.0f, 1.0f, 0.0f});
     }
     else
     {
@@ -667,7 +686,7 @@ void Grid3D::DeleteAgent()
 
 void Grid3D::SaveMap()
 {
-    std::string filePath = "/../../res/Map";
+    std::string filePath = "../../res/Map";
     filePath.append(std::to_string(m_gridConfigIndex));
     filePath.append(".txt");
 
@@ -682,9 +701,9 @@ void Grid3D::SaveMap()
         for (int j = 0; j < m_vData[i].size(); j++)
         {
             if (m_vData[i][j].isWalkable)
-                temp.append("1");
+                temp.append(std::to_string((int)(m_vData[i][j].position.height * 5)));
             else
-                temp.append("0");
+                temp.append("#");
         }
         temp.append("\n");
         file << temp;

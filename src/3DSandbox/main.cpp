@@ -1,6 +1,6 @@
+#include "pch.h"
 #include "main.h"
 #include <3DLightEngine/GameManager.h>
-#include "TestScene.h"
 #include "3DSandbox/Grid3D.h"
 
 int main()
