@@ -611,7 +611,7 @@ void Grid::SaveMap()
         for (int j = 0; j < m_vData[i].size(); j++)
         {
             if (m_vData[i][j].isWalkable)
-                temp.append("1");
+                temp.append("0");
             else
                 temp.append("#");
         }
