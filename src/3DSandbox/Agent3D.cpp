@@ -39,9 +39,7 @@ void Agent3D::OnUpdate()
 	{
 		m_tilePosition = m_nextPos;
 	}
-
-	std::cout << m_tilePosition.x << ", " << m_tilePosition.y << std::endl;
-
+	
 	if (m_vPaths.empty()) return;
 
 	Path& currentPath = m_vPaths.front();

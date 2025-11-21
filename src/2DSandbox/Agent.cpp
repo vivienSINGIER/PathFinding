@@ -91,7 +91,6 @@ void Agent::SetTarget()
 			sf::Vector2i p = {currentPath.vPositions[currentPath.index].x, currentPath.vPositions[currentPath.index].y};
 			sf::Vector2i wP = Grid::GetWorldPosition(p);
 			GoToPosition(wP.x, wP.y, SPEED);
-			std::cout << currentPath.index << std::endl;
 		}
 	}
 	else if (currentPath.isLoop == false)

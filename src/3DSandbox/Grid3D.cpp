@@ -111,7 +111,7 @@ void Grid3D::HandleInput()
         m_gridConfigIndex--;
     if (GetKeyDown(Keyboard::F2))
         m_gridConfigIndex++;
-    m_gridConfigIndex = gce::Clamp(m_gridConfigIndex, 1, 2);
+    m_gridConfigIndex = gce::Clamp(m_gridConfigIndex, 1, 4);
     if (m_gridConfigIndex != oldIndex)
         Init(m_gridConfigIndex);
 
@@ -592,9 +592,6 @@ std::vector<Node<Tile>*> Grid3D::GetTouchingTiles(Agent3D* pAgent)
 
         result.push_back(other);
     }
-
-    if (result.size() > 1)
-        int o = 0;
     
     return result;
 }
