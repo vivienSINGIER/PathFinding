@@ -2,39 +2,39 @@
 A simple rendering library for 2D and 3D and using GCRender has the rendering backend. 
 
 # Inputs 3D
-Flèches directionnelles = Déplacement curseur
-B = Toggle du walkable pour une case
-RShift = Augmenter la hauteur de la case
-RControl = Diminuer la hauteur de la case
+UP-DOWN-RIGHT_LEFT = Move Cursor
+B = Toggle walkable state of selected cell
+RShift = Increase height of selected cell
+RControl = Decrease heaight of selected cell
 
-A = Création d'un agent
-Page_Up et Page_Down = Parcourir les agents
-Enter = Ajout destination
-Enter + LShift = Ajout d'une destination supplémentaire
-Tab = Prévisualisation du path
-P = Mode patrouille
-Plus = Augmente la vitesse de l'agent
-Moins = Diminue la vitesse de l'agent
-BackSpace = Supprimer l'agent 
+A = Agent creation
+Page_Up & Page_Down = Change selected agent
+Enter = Set destination
+Enter + LShift = Set Next Destination
+Tab = Preview path
+P = Toggle patrol mode
+Add = Increase Agent speed
+Subtract = Decrease Agent speed
+BackSpace = Delete agent 
 
-Numpad 4 et 6 = Rotation caméra
-Numpad 5 et 8 = Elévation caméra
-Numpad 1 et 3 = Réglage zoom
-Space = Remise de la caméra à sa pos initial
+Numpad 4 & 6 = Rotate camera
+Numpad 5 & 8 = Change camera height
+Numpad 1 & 3 = Set zoom
+Space = Reset camera
 
 # Inputs 2D
-B = Toggle du walkable pour une case
-Middle Click = Sélection d'une case
+B = Toggle walkable state of selected cell
+Middle Click = Select cell
 
-A + Left Click = Création d'un agent
-Left Click = Sélection d'un agent
-Right Click = Ajout destination
-LControl + Right Click = Ajout d'une destination supplémentaire
-Tab = Prévisualisation du path
-P = Mode patrouille
-Plus = Augmente la vitesse de l'agent
-Moins = Diminue la vitesse de l'agent
-Suppr / Del = Supprimer l'agent
+A + Left Click = Agent creation
+Left Click = Select agent
+Right Click = Add target
+LControl + Right Click = Add secondary target
+Tab = Preview path
+P = Toggle patrol mode
+Add = Increase agent speed
+Subtract = Decrease agent speed
+Suppr / Del = Delete agent
 
-F1 / F2 = Changement de preset de map
-Control + S = Sauvegarde de la map actuelle sur le preset
+F1 / F2 = Change map preset
+Control + S = Save map preset
