@@ -155,6 +155,17 @@ void Grid::OnEvent(const sf::Event& event)
         }
     }
 
+    if (event.type == sf::Event::Resized)
+    {
+        sf::FloatRect visibleArea(0.f, 0.f, 
+            static_cast<float>(event.size.width), 
+            static_cast<float>(event.size.height));
+        mpGameManager->GetWindow()->setView(sf::View(visibleArea)); // adjust to however you access the window
+        float offsetX = mpGameManager->GetWindow()->getSize().x / 2 - m_gridSize.x / 2;
+        float offsetY = mpGameManager->GetWindow()->getSize().y / 2 - m_gridSize.y / 2;
+        Grid::m_anchorPoint = sf::Vector2i(offsetX, offsetY);
+    }
+    
     if (event.type == sf::Event::MouseButtonPressed)
     {
         if (event.mouseButton.button == sf::Mouse::Middle)
@@ -257,7 +268,7 @@ void Grid::Draw()
             color = sf::Color::Red;
         
         if (n->data->isWalkable || n == m_pSelectedTile)
-            Debug::DrawFilledRectangle(m_anchorPoint.x + p.x * 50.f, m_anchorPoint.y + p.y * 50.f, 50.0f, 50.0f, color);
+            Debug::DrawFilledRectangle(m_anchorPoint.x + p.x * 50.0f, m_anchorPoint.y + p.y * 50.0f, 50.0f, 50.0f, color);
     }
 
     if (m_pSelectedAgent != nullptr)
@@ -286,10 +297,10 @@ void Grid::CreateAgent(sf::Vector2i mousePos)
     if (tempNode->data->isWalkable == false || tempNode->data->pOccupyingAgent != nullptr)
         return;
 
-    pos *= 50;
+    pos *= (int)m_squareSize;
 
     Agent* tempAgent = CreateEntity<Agent>(20.f, sf::Color::Blue);
-    tempAgent->SetPosition(pos.x + 25.f + m_anchorPoint.x, pos.y + 25.f + m_anchorPoint.y);
+    tempAgent->SetPosition(pos.x + m_squareSize + m_anchorPoint.x, pos.y + m_squareSize + m_anchorPoint.y);
 
     m_vAgents.push_back(tempAgent);
 }
@@ -339,16 +350,17 @@ Node<Tile>* Grid::AStar(Node<Tile>* startNode, Node<Tile>* endNode, Agent* pAgen
 sf::Vector2i Grid::GetTilePosition(sf::Vector2i worldPos)
 {
     sf::Vector2i pos = { worldPos.x - m_anchorPoint.x, worldPos.y - m_anchorPoint.y };
-    if (pos.x < 0) pos.x -= 50;
-    if (pos.y < 0) pos.y -= 50;
-    pos /= 50;
+    if (pos.x < 0) pos.x -= (int)m_squareSize;
+    if (pos.y < 0) pos.y -= (int)m_squareSize;
+    pos /= (int)m_squareSize;
 
     return pos;
 }
 
 sf::Vector2i Grid::GetWorldPosition(sf::Vector2i gridPos)
 {
-    return { m_anchorPoint.x + gridPos.x * 50 + 25, m_anchorPoint.y + gridPos.y * 50 + 25};
+    return { m_anchorPoint.x + gridPos.x * (int)m_squareSize + (int)m_squareSize / 2,
+                m_anchorPoint.y + gridPos.y * (int)m_squareSize + (int)m_squareSize / 2 };
 }
 
 void Grid::CalculateNodes()

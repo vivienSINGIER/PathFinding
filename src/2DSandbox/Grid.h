@@ -34,6 +34,7 @@ public:
 private:
     sf::Vector2i m_gridSize;
     sf::Vector2i m_gridCenter;
+    static inline float m_squareSize = 50.0f;
     static sf::Vector2i m_anchorPoint;            
 
     int m_gridConfigIndex = 1;
