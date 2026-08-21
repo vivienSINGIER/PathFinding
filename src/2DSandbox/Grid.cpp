@@ -141,9 +141,9 @@ void Grid::OnEvent(const sf::Event& event)
         {
             m_pSelectedAgent->SetSpeedFactor(std::max(0.f, m_pSelectedAgent->GetSpeedFactor() - 1));
         }
-
-        if (event.key.code == sf::Keyboard::S && sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
-            SaveMap();
+        
+        if (event.key.code == sf::Keyboard::Escape)
+            mpGameManager->GetWindow()->close();
         
         if (isSwapping)
         {
@@ -161,8 +161,8 @@ void Grid::OnEvent(const sf::Event& event)
             static_cast<float>(event.size.width), 
             static_cast<float>(event.size.height));
         mpGameManager->GetWindow()->setView(sf::View(visibleArea)); // adjust to however you access the window
-        float offsetX = mpGameManager->GetWindow()->getSize().x / 2 - m_gridSize.x / 2;
-        float offsetY = mpGameManager->GetWindow()->getSize().y / 2 - m_gridSize.y / 2;
+        float offsetX = (mpGameManager->GetWindow()->getSize().x / 2) - (m_gridSize.x / 2);
+        float offsetY = (mpGameManager->GetWindow()->getSize().y / 2) - (m_gridSize.y / 2);
         Grid::m_anchorPoint = sf::Vector2i(offsetX, offsetY);
     }
     
@@ -235,8 +235,8 @@ void Grid::Init(const int configIndex)
 
     CalculateNodes();
 
-    float offsetX = GetWindowWidth() / 2 - m_gridSize.x / 2;
-    float offsetY = GetWindowHeight() / 2 - m_gridSize.y / 2;
+    float offsetX = (GetWindowWidth() / 2) - (m_gridSize.x / 2);
+    float offsetY = (GetWindowHeight() / 2) - (m_gridSize.y / 2);
     Grid::m_anchorPoint = sf::Vector2i(offsetX, offsetY);
 }
 
@@ -300,7 +300,7 @@ void Grid::CreateAgent(sf::Vector2i mousePos)
     pos *= (int)m_squareSize;
 
     Agent* tempAgent = CreateEntity<Agent>(20.f, sf::Color::Blue);
-    tempAgent->SetPosition(pos.x + m_squareSize + m_anchorPoint.x, pos.y + m_squareSize + m_anchorPoint.y);
+    tempAgent->SetPosition(pos.x + m_squareSize / 2 + m_anchorPoint.x, pos.y + m_squareSize / 2 + m_anchorPoint.y);
 
     m_vAgents.push_back(tempAgent);
 }
@@ -604,34 +604,6 @@ void Grid::ToggleWalkable()
         }
         
     }
-}
-
-void Grid::SaveMap()
-{
-    std::string filePath = "../../res/Map";
-    filePath.append(std::to_string(m_gridConfigIndex));
-    filePath.append(".txt");
-
-    std::ofstream file(filePath.c_str());
-    if (!file.is_open()) return;
-
-    std::string line;
-    
-    for (int i = 0; i < m_vData.size(); i++)
-    {
-        std::string temp = "";
-        for (int j = 0; j < m_vData[i].size(); j++)
-        {
-            if (m_vData[i][j].isWalkable)
-                temp.append("0");
-            else
-                temp.append("#");
-        }
-        temp.append("\n");
-        file << temp;
-    }
-
-    file.close();
 }
 
 #endif

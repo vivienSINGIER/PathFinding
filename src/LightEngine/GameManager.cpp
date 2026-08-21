@@ -1,5 +1,7 @@
 #include "LightEngine/GameManager.h"
 
+#include "define.h"
+
 #include "LightEngine/Entity.h"
 #include "LightEngine/Debug.h"
 
@@ -7,6 +9,7 @@
 #include <SFML/Window.hpp>
 
 #include <iostream>
+
 
 GameManager::GameManager()
 {
@@ -24,15 +27,15 @@ GameManager* GameManager::Get()
 	return &mInstance;
 }
 
-void GameManager::CreateWindow(unsigned int width, unsigned int height, const char* title, int fpsLimit, sf::Color clearColor)
+void GameManager::CreateGameWindow(unsigned int width, unsigned int height, const char* title, int fpsLimit, sf::Color clearColor)
 {
 	_ASSERT(mpWindow == nullptr);
 
-	mpWindow = new sf::RenderWindow(sf::VideoMode(width, height), title);
+	mpWindow = new sf::RenderWindow(sf::VideoMode(width, height), title, sf::Style::Fullscreen);
 	mpWindow->setFramerateLimit(fpsLimit);
 
-	mWindowWidth = width;
-	mWindowHeight = height;
+	mWindowWidth = mpWindow->getSize().x;
+	mWindowHeight = mpWindow->getSize().y;
 
 	mClearColor = clearColor;
 }
@@ -53,11 +56,11 @@ void GameManager::Run()
 	if (mpWindow == nullptr) 
 	{
 		std::cout << "Window not created, creating default window" << std::endl;
-		CreateWindow(1280, 720, "Default window");
+		CreateGameWindow(1280, 720, "Default window");
 	}
 
 	//#TODO : Load somewhere else
-	bool fontLoaded = mFont.loadFromFile("../../res/Hack-Regular.ttf");
+	bool fontLoaded = mFont.loadFromFile(RES_PATH"res/Hack-Regular.ttf");
 	_ASSERT(fontLoaded);
 
 	_ASSERT(mpScene != nullptr);

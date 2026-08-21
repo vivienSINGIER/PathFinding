@@ -15,11 +15,13 @@ std::vector<std::vector<char>> GridConfig3D::config2;
 std::vector<std::vector<char>> GridConfig3D::config3;
 std::vector<std::vector<char>> GridConfig3D::config4;
 
+#include "../LightEngine/define.h"
+
 std::vector<std::vector<char>> GridConfig3D::LoadConfig(int index)
 {
     std::vector<std::vector<char>> config;
 
-    std::string filePath = "../../res/Map";
+    std::string filePath = RES_PATH"res/Map";
     filePath.append(std::to_string(index));
     filePath.append(".txt");
 

@@ -3,11 +3,15 @@
 
 #include "GridConfig.h"
 
+#include <assert.h>
 #include <fstream>
 #include <ios>
 #include <string>
 
+#include "define.h"
+
 #include "Grid.h"
+#include "Utils.hpp"
 
 std::vector<std::vector<char>> GridConfig::config1;
 std::vector<std::vector<char>> GridConfig::config2;
@@ -18,13 +22,18 @@ std::vector<std::vector<char>> GridConfig::LoadConfig(int index)
 {
 	std::vector<std::vector<char>> config;
  
- 	std::string filePath = "../../res/Map";
+ 	std::string filePath = RES_PATH"res/Map";
  	filePath.append(std::to_string(index));
  	filePath.append(".txt");
  
  	std::fstream file(filePath.c_str(), std::ios::in);
- 	
- 	if (!file.is_open()) return config;
+	
+ 	if (!file.is_open())
+ 	{
+ 		MessageBoxA(nullptr, filePath.c_str(), "Failed to open file", MB_OK | MB_ICONERROR);
+ 		assert(false);
+ 		return config;
+ 	}
  	
  	std::string line;
  	while (getline(file, line))

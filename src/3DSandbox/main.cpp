@@ -8,7 +8,7 @@ int main()
 	GameManager* pInstance = GameManager::Get();
 
 	pInstance->Init(1280, 720);
-
+	
 	pInstance->LaunchScene<Grid3D>();
 
 	return 0;

@@ -49,7 +49,7 @@ public:
 	~GameManager();
 	static GameManager* Get();
 
-	void CreateWindow(unsigned int width, unsigned int height, const char* title, int fpsLimit = 60, sf::Color clearColor = sf::Color::Black);
+	void CreateGameWindow(unsigned int width, unsigned int height, const char* title, int fpsLimit = 60, sf::Color clearColor = sf::Color::Black);
 
 	template<typename T>
 	void LaunchScene();
