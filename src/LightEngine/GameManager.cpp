@@ -31,7 +31,7 @@ void GameManager::CreateGameWindow(unsigned int width, unsigned int height, cons
 {
 	_ASSERT(mpWindow == nullptr);
 
-	mpWindow = new sf::RenderWindow(sf::VideoMode(width, height), title, sf::Style::Fullscreen);
+	mpWindow = new sf::RenderWindow(sf::VideoMode(width, height), title);
 	mpWindow->setFramerateLimit(fpsLimit);
 
 	mWindowWidth = mpWindow->getSize().x;
